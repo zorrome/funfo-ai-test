@@ -53,3 +53,9 @@
 - type: BROWSER_SMOKE_UNAVAILABLE
 - retryable: no
 - detail: candidate verifier failed: Browser smoke runtime available (No Chrome/Chromium executable found for browser smoke verification)
+
+## 2026-03-16T11:39:44.989Z publish success
+- releaseAppId: 36
+- version: v3
+- previewSlug: 8uuykedu
+- publishMode: llm_provider

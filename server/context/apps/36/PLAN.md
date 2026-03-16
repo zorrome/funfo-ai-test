@@ -34,3 +34,5 @@
 - schema は CREATE TABLE IF NOT EXISTS ベースの migration-safe な定義にする
 - candidate readiness と smoke は空配列でも崩れない read endpoint と初期描画を優先する
 - POST/PUT は必ず作成済み・更新済みレコード本体を返し、DELETE は { success, id } を返す
+- Last successful publish: v3
+- Preview slug: 8uuykedu

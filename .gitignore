@@ -1,6 +1,7 @@
 # Node / Vite
 node_modules/
 dist/
+build/
 .vite/
 
 # Environment
@@ -12,10 +13,9 @@ logs/
 *.log
 server/logs/
 
-# Databases & runtime data
+# Databases & generated apps (runtime data + AI 生成的业务项目)
 server/funfo.db
-server/apps/*/data.sqlite
-server/apps/*/log/
+server/apps/
 
 # OS / editor
 .DS_Store

@@ -20,3 +20,5 @@
 - 2026-03-16T11:08:05.176Z: publish failed at phase backend_sql_generate; type=PUBLISH_UNKNOWN; detail=Empty model response.
 
 - 2026-03-16T11:15:28.763Z: publish failed at phase verifier; type=BROWSER_SMOKE_UNAVAILABLE; detail=candidate verifier failed: Browser smoke runtime available (No Chrome/Chromium executable found for browser smoke verification).
+
+- 2026-03-16T11:39:44.991Z: publish succeeded for release app 36 at v3 (mode=llm_provider).
