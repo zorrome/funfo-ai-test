@@ -1,0 +1,39 @@
+CREATE TABLE IF NOT EXISTS tables (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  capacity INTEGER NOT NULL DEFAULT 4,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS customers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL UNIQUE,
+  memo TEXT NOT NULL DEFAULT '',
+  last_visit_date TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS reservations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  table_id INTEGER NOT NULL,
+  date TEXT NOT NULL,
+  start_time TEXT NOT NULL,
+  start_minutes INTEGER NOT NULL DEFAULT 0,
+  end_minutes INTEGER NOT NULL DEFAULT 0,
+  duration_minutes INTEGER NOT NULL DEFAULT 90,
+  customer_name TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  party_size INTEGER NOT NULL DEFAULT 1,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (table_id) REFERENCES tables(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_reservations_table_date ON reservations(table_id, date);
+CREATE INDEX IF NOT EXISTS idx_reservations_date_start ON reservations(date, start_minutes);
+CREATE INDEX IF NOT EXISTS idx_reservations_phone ON reservations(phone);
+CREATE INDEX IF NOT EXISTS idx_customers_phone ON customers(phone);

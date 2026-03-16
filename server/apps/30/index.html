@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./react.js"></script>
+  <script src="./react-is.js"></script>
+  <script src="./react-dom.js"></script>
+  <script src="./prop-types.js"></script>
+  <script src="./recharts.js"></script>
+  <script>
+(function () {
+  if (!window.React) return;
+  var React = window.React;
+  var Recharts = window.Recharts || {};
+
+  window.React = React;
+  window.ReactDOM = window.ReactDOM;
+  window.Fragment = React.Fragment;
+
+  window.useState = React.useState;
+  window.useEffect = React.useEffect;
+  window.useMemo = React.useMemo;
+  window.useCallback = React.useCallback;
+  window.useRef = React.useRef;
+  window.useReducer = React.useReducer;
+
+  var chartGlobals = {
+    BarChart: Recharts.BarChart,
+    Bar: Recharts.Bar,
+    LineChart: Recharts.LineChart,
+    Line: Recharts.Line,
+    AreaChart: Recharts.AreaChart,
+    Area: Recharts.Area,
+    PieChart: Recharts.PieChart,
+    Pie: Recharts.Pie,
+    Cell: Recharts.Cell,
+    XAxis: Recharts.XAxis,
+    YAxis: Recharts.YAxis,
+    CartesianGrid: Recharts.CartesianGrid,
+    Tooltip: Recharts.Tooltip,
+    Legend: Recharts.Legend,
+    ResponsiveContainer: Recharts.ResponsiveContainer,
+    RadarChart: Recharts.RadarChart,
+    Radar: Recharts.Radar,
+    PolarGrid: Recharts.PolarGrid,
+    PolarAngleAxis: Recharts.PolarAngleAxis,
+    PolarRadiusAxis: Recharts.PolarRadiusAxis,
+    ComposedChart: Recharts.ComposedChart,
+    ScatterChart: Recharts.ScatterChart,
+    Scatter: Recharts.Scatter,
+    Treemap: Recharts.Treemap,
+    RadialBarChart: Recharts.RadialBarChart,
+    RadialBar: Recharts.RadialBar,
+    FunnelChart: Recharts.FunnelChart,
+    Funnel: Recharts.Funnel,
+    Sankey: Recharts.Sankey,
+    ReferenceArea: Recharts.ReferenceArea,
+    ReferenceLine: Recharts.ReferenceLine,
+    ReferenceDot: Recharts.ReferenceDot,
+    Brush: Recharts.Brush,
+    Label: Recharts.Label,
+    LabelList: Recharts.LabelList
+  };
+  Object.keys(chartGlobals).forEach(function (key) {
+    if (chartGlobals[key]) window[key] = chartGlobals[key];
+  });
+
+  window.asArray = window.asArray || function (v) {
+    return Array.isArray(v) ? v : [];
+  };
+  window.classNames = window.classNames || function () {
+    return Array.prototype.filter.call(arguments, Boolean).join(' ');
+  };
+
+  var iconEmojiMap = {
+    Search: '🔍', Plus: '➕', Minus: '➖', X: '✕', Check: '✓',
+    ChevronDown: '▾', ChevronUp: '▴', ChevronLeft: '◂', ChevronRight: '▸',
+    ArrowLeft: '←', ArrowRight: '→', Calendar: '📅', Clock: '🕒', Bell: '🔔',
+    Settings: '⚙️', User: '👤', Users: '👥', Home: '🏠', Menu: '☰', Filter: '🧪',
+    Download: '⬇️', Upload: '⬆️', Trash2: '🗑️', Edit: '✏️', Eye: '👁️',
+    EyeOff: '🙈', Copy: '📄', Share: '🔗', ExternalLink: '↗️', Star: '⭐',
+    Heart: '❤️', AlertCircle: '⚠️', Info: 'ℹ️', HelpCircle: '❔',
+    ShoppingCart: '🛒', CreditCard: '💳', DollarSign: '💲', TrendingUp: '📈',
+    TrendingDown: '📉', BarChart3: '📊', PieChart: '🥧', FileText: '📄',
+    Printer: '🖨️', QrCode: '▦', Utensils: '🍽️', Coffee: '☕', Wine: '🍷',
+    Store: '🏪', Package: '📦', Phone: '📞', Mail: '✉️', MapPin: '📍',
+    Navigation: '🧭', Sun: '☀️', Moon: '🌙', Loader2: '⏳', RefreshCw: '🔄',
+    MoreHorizontal: '⋯', MoreVertical: '⋮', GripVertical: '⋮', LogOut: '↩️',
+    Save: '💾', Send: '📨'
+  };
+
+  window.Icon = window.Icon || function Icon(props) {
+    var name = props && props.name ? props.name : 'Icon';
+    var size = props && props.size ? props.size : 18;
+    var className = props && props.className ? props.className : '';
+    var style = props && props.style ? props.style : {};
+    var title = props && props.title ? props.title : name;
+    var rest = Object.assign({}, props || {});
+    delete rest.name;
+    delete rest.size;
+    delete rest.className;
+    delete rest.style;
+    delete rest.title;
+    return React.createElement('span', Object.assign({}, rest, {
+      title: title,
+      className: className,
+      style: Object.assign({
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: size,
+        height: size,
+        lineHeight: 1,
+        fontSize: Math.max(12, Math.round(size * 0.9))
+      }, style)
+    }), iconEmojiMap[name] || '◻︎');
+  };
+
+  ['Search','Plus','Minus','X','Check','ChevronDown','ChevronUp','ChevronLeft','ChevronRight','ArrowLeft','ArrowRight','Calendar','Clock','Bell','Settings','User','Users','Home','Menu','Filter','Download','Upload','Trash2','Edit','Eye','EyeOff','Copy','Share','ExternalLink','Star','Heart','AlertCircle','Info','HelpCircle','ShoppingCart','CreditCard','DollarSign','TrendingUp','TrendingDown','BarChart3','PieChart','FileText','Printer','QrCode','Utensils','Coffee','Wine','Store','Package','Phone','Mail','MapPin','Navigation','Sun','Moon','Loader2','RefreshCw','MoreHorizontal','MoreVertical','GripVertical','LogOut','Save','Send'].forEach(function (name) {
+    window[name + 'Icon'] = function ShortcutIcon(props) {
+      return React.createElement(window.Icon, Object.assign({ name: name }, props || {}));
+    };
+  });
+
+  window.Dialog = window.Dialog || function Dialog(props) {
+    var open = !!(props && props.open);
+    if (!open) return null;
+    var onClose = props && props.onClose;
+    return React.createElement('div', {
+      className: 'fixed inset-0 z-50 flex items-center justify-center',
+      onClick: function (e) { if (e.target === e.currentTarget && onClose) onClose(); }
+    },
+      React.createElement('div', { className: 'fixed inset-0 bg-black/40' }),
+      React.createElement('div', { className: 'relative z-10 w-full max-w-lg mx-4 max-h-[85vh] overflow-auto rounded-xl bg-white p-6 shadow-2xl' },
+        props && props.title ? React.createElement('h2', { className: 'text-lg font-semibold mb-4' }, props.title) : null,
+        React.createElement('button', { className: 'absolute right-3 top-3 text-xl leading-none text-gray-400 hover:text-gray-600', onClick: onClose }, '×'),
+        props && props.children
+      )
+    );
+  };
+
+  window.Tabs = window.Tabs || function Tabs(props) {
+    var tabs = window.asArray(props && props.tabs);
+    var active = props && props.active;
+    var onChange = props && props.onChange;
+    return React.createElement('div', { className: 'flex gap-1 border-b border-slate-200' },
+      tabs.map(function (tab) {
+        var isActive = tab.key === active;
+        return React.createElement('button', {
+          key: tab.key,
+          className: 'px-4 py-2 text-sm font-medium border-b-2 transition-colors ' + (isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'),
+          onClick: function () { if (onChange) onChange(tab.key); }
+        }, tab.label);
+      })
+    );
+  };
+
+  window.Badge = window.Badge || function Badge(props) {
+    var colorMap = {
+      gray: 'bg-gray-100 text-gray-700', blue: 'bg-blue-100 text-blue-700', green: 'bg-green-100 text-green-700',
+      red: 'bg-red-100 text-red-700', yellow: 'bg-yellow-100 text-yellow-700', purple: 'bg-purple-100 text-purple-700'
+    };
+    var color = props && props.color ? props.color : 'gray';
+    return React.createElement('span', { className: 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ' + (colorMap[color] || colorMap.gray) }, props && props.children);
+  };
+
+  window.Spinner = window.Spinner || function Spinner(props) {
+    var size = props && props.size ? props.size : 20;
+    var className = props && props.className ? props.className : '';
+    return React.createElement('svg', { className: 'animate-spin text-blue-600 ' + className, width: size, height: size, viewBox: '0 0 24 24', fill: 'none' },
+      React.createElement('circle', { cx: 12, cy: 12, r: 10, stroke: 'currentColor', strokeWidth: 3, opacity: 0.25 }),
+      React.createElement('path', { d: 'M4 12a8 8 0 018-8', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round' })
+    );
+  };
+
+  window.EmptyState = window.EmptyState || function EmptyState(props) {
+    return React.createElement('div', { className: 'flex flex-col items-center justify-center py-12 text-gray-400' },
+      React.createElement('span', { className: 'mb-3 text-4xl' }, (props && props.icon) || '📭'),
+      React.createElement('p', { className: 'text-sm' }, (props && props.message) || 'データがありません')
+    );
+  };
+
+  window.Toggle = window.Toggle || function Toggle(props) {
+    var checked = !!(props && props.checked);
+    var onChange = props && props.onChange;
+    return React.createElement('label', { className: 'inline-flex cursor-pointer items-center gap-2' },
+      React.createElement('div', {
+        className: 'relative h-5 w-10 rounded-full transition-colors ' + (checked ? 'bg-blue-600' : 'bg-gray-300'),
+        onClick: function () { if (onChange) onChange(!checked); }
+      }, React.createElement('div', { className: 'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-5' : 'translate-x-0.5') })),
+      props && props.label ? React.createElement('span', { className: 'text-sm text-gray-700' }, props.label) : null
+    );
+  };
+
+  window.DatePicker = window.DatePicker || function DatePicker(props) {
+    return React.createElement('input', {
+      type: 'date', value: (props && props.value) || '', min: props && props.min, max: props && props.max,
+      onChange: function (e) { if (props && props.onChange) props.onChange(e.target.value); },
+      className: 'border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + ((props && props.className) || '')
+    });
+  };
+
+  window.TimePicker = window.TimePicker || function TimePicker(props) {
+    return React.createElement('input', {
+      type: 'time', value: (props && props.value) || '',
+      onChange: function (e) { if (props && props.onChange) props.onChange(e.target.value); },
+      className: 'border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + ((props && props.className) || '')
+    });
+  };
+
+  window.DateRangePicker = window.DateRangePicker || function DateRangePicker(props) {
+    return React.createElement('div', { className: 'inline-flex items-center gap-2' },
+      React.createElement(window.DatePicker, { value: props && props.startDate, onChange: props && props.onStartChange, max: props && props.endDate }),
+      React.createElement('span', { className: 'text-sm text-gray-400' }, '〜'),
+      React.createElement(window.DatePicker, { value: props && props.endDate, onChange: props && props.onEndChange, min: props && props.startDate })
+    );
+  };
+})();</script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f8fafc}
+    #funfo-powered{display:none;height:28px;border-bottom:1px solid #e5e7eb;background:#fafafa;color:#52525b;font-size:12px;
+      align-items:center;justify-content:center;gap:6px}
+    #funfo-powered a{color:#18181b;text-decoration:none}
+    #funfo-powered a:hover{text-decoration:underline;color:#000}
+    #err{color:#ef4444;background:#1e1e1e;padding:16px;font-size:12px;white-space:pre-wrap;
+         font-family:monospace;margin:16px;border-radius:8px;display:none}
+  </style>
+</head>
+<body>
+<div id="funfo-powered">powered by
+  <span style="display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#27272a;">
+    <span style="width:14px;height:14px;border-radius:4px;background:#18181b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">✦</span>
+    funfo AI
+  </span>
+  <a href="" target="_blank" rel="noopener noreferrer">公式サイト</a>
+</div>
+<div id="root"></div>
+<div id="err"></div>
+<script>
+// ── Error reporting to parent frame ──────────────────────────────────
+function reportError(type, message, detail) {
+  var entry = { type: type, message: message, detail: detail || '', time: new Date().toISOString(), url: location.href };
+  var fatal = ['CompileError','RenderError','RuntimeError','UnhandledRejection'].indexOf(type) >= 0;
+  // Show inline error panel only for fatal errors
+  var el = document.getElementById('err');
+  if (fatal && el) { el.style.display = 'block'; el.textContent = '\u274C ' + type + ': ' + message; }
+  // Send to parent (VibeCoding workspace)
+  try { window.parent.postMessage({ __funfoError: true, entry: entry }, '*'); } catch(_) {}
+}
+function postRouteChange() {
+  try {
+    window.parent.postMessage({
+      __funfoRouteChange: true,
+      path: location.pathname,
+      search: location.search || '',
+      hash: location.hash || '',
+      href: location.href,
+    }, '*');
+  } catch(_) {}
+}
+// Catch unhandled JS errors
+window.onerror = function(msg, src, line, col, err) {
+  reportError('RuntimeError', msg, err ? err.stack : ('line ' + line));
+  return false;
+};
+// Catch unhandled promise rejections
+window.addEventListener('unhandledrejection', function(e) {
+  var msg = e.reason instanceof Error ? e.reason.message : String(e.reason);
+  var detail = e.reason instanceof Error ? e.reason.stack : '';
+  reportError('UnhandledRejection', msg, detail);
+});
+// Intercept fetch to keep /api requests inside the current app base and capture API errors
+var _fetch = window.fetch;
+window.fetch = function(url, opts) {
+  var nextUrl = url;
+  if (typeof nextUrl === 'string' && APP_BASE) {
+    if (nextUrl.startsWith('/api/')) nextUrl = APP_BASE + nextUrl;
+    else if (nextUrl.startsWith('api/')) nextUrl = APP_BASE.replace(/\/$/, '/') + nextUrl;
+  }
+  return _fetch.call(this, nextUrl, opts).then(function(res) {
+    if (!res.ok) {
+      // Clone to read body without consuming it
+      res.clone().text().then(function(body) {
+        reportError('APIError', res.status + ' ' + res.statusText + ' — ' + nextUrl, body.slice(0, 300));
+      });
+    }
+    return res;
+  }).catch(function(err) {
+    reportError('NetworkError', 'Failed to fetch: ' + nextUrl, err.message);
+    throw err;
+  });
+};
+
+var API_BASE = "/app/nmpcsi4h";
+if (!API_BASE) {
+  var _w = location.pathname.match(/^\/w\/(w_[a-z0-9]{12}(?:_preview)?)(?:\/|$)/);
+  if (_w) API_BASE = '/w/' + _w[1];
+  if (!API_BASE) {
+    var _m = location.pathname.match(/^\/app\/([a-z0-9]{8})(?:\/|$)/);
+    if (_m) API_BASE = '/app/' + _m[1];
+  }
+}
+var APP_BASE = API_BASE || '';
+function toAppRelativeUrl(target) {
+  if (!target) return target;
+  if (typeof target !== 'string') target = String(target);
+  if (!APP_BASE) return target;
+  if (/^(https?:|data:|blob:|mailto:|tel:|javascript:)/i.test(target)) return target;
+  if (target.startsWith(APP_BASE)) return target;
+  if (target.startsWith('#')) return location.pathname + target;
+  if (target.startsWith('/')) return APP_BASE + target;
+  return APP_BASE.replace(/\/$/, '/') + target.replace(/^\.\//, '');
+}
+(function patchClientRouting() {
+  if (!APP_BASE) return;
+  var _pushState = history.pushState.bind(history);
+  var _replaceState = history.replaceState.bind(history);
+  history.pushState = function(state, title, url) {
+    var next = typeof url === 'string' ? toAppRelativeUrl(url) : url;
+    var out = _pushState(state, title, next);
+    postRouteChange();
+    return out;
+  };
+  history.replaceState = function(state, title, url) {
+    var next = typeof url === 'string' ? toAppRelativeUrl(url) : url;
+    var out = _replaceState(state, title, next);
+    postRouteChange();
+    return out;
+  };
+  var _open = window.open ? window.open.bind(window) : null;
+  if (_open) {
+    window.open = function(url, target, features) {
+      return _open(typeof url === 'string' ? toAppRelativeUrl(url) : url, target, features);
+    };
+  }
+  window.addEventListener('popstate', postRouteChange);
+  window.addEventListener('hashchange', postRouteChange);
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    while (el && el.tagName !== 'A') el = el.parentElement;
+    if (!el) return;
+    var href = el.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    var next = toAppRelativeUrl(href);
+    if (next !== href) el.setAttribute('href', next);
+    setTimeout(postRouteChange, 0);
+  }, true);
+  setTimeout(postRouteChange, 0);
+})();
+if (window.self === window.top) {
+  var bar = document.getElementById('funfo-powered');
+  if (bar) bar.style.display = 'flex';
+}
+try {
+  function __renderApp(API_BASE) {
+  var React = window.React;
+  var ReactDOM = window.ReactDOM;
+  var Fragment = window.Fragment || React && React.Fragment;
+  var useState = window.useState || React.useState;
+  var useEffect = window.useEffect || React.useEffect;
+  var useMemo = window.useMemo || React.useMemo;
+  var useCallback = window.useCallback || React.useCallback;
+  var useRef = window.useRef || React.useRef;
+  var useReducer = window.useReducer || React.useReducer;
+  var BarChart = window.BarChart;
+  var Bar = window.Bar;
+  var LineChart = window.LineChart;
+  var Line = window.Line;
+  var AreaChart = window.AreaChart;
+  var Area = window.Area;
+  var PieChart = window.PieChart;
+  var Pie = window.Pie;
+  var Cell = window.Cell;
+  var RadarChart = window.RadarChart;
+  var Radar = window.Radar;
+  var PolarGrid = window.PolarGrid;
+  var PolarAngleAxis = window.PolarAngleAxis;
+  var PolarRadiusAxis = window.PolarRadiusAxis;
+  var ComposedChart = window.ComposedChart;
+  var ScatterChart = window.ScatterChart;
+  var Scatter = window.Scatter;
+  var Treemap = window.Treemap;
+  var RadialBarChart = window.RadialBarChart;
+  var RadialBar = window.RadialBar;
+  var FunnelChart = window.FunnelChart;
+  var Funnel = window.Funnel;
+  var Sankey = window.Sankey;
+  var ReferenceArea = window.ReferenceArea;
+  var ReferenceLine = window.ReferenceLine;
+  var ReferenceDot = window.ReferenceDot;
+  var Brush = window.Brush;
+  var Label = window.Label;
+  var LabelList = window.LabelList;
+  var XAxis = window.XAxis;
+  var YAxis = window.YAxis;
+  var CartesianGrid = window.CartesianGrid;
+  var Tooltip = window.Tooltip;
+  var Legend = window.Legend;
+  var ResponsiveContainer = window.ResponsiveContainer;
+  var Icon = window.Icon;
+  var Dialog = window.Dialog;
+  var Tabs = window.Tabs;
+  var Badge = window.Badge;
+  var Spinner = window.Spinner;
+  var EmptyState = window.EmptyState;
+  var Toggle = window.Toggle;
+  var DatePicker = window.DatePicker;
+  var TimePicker = window.TimePicker;
+  var DateRangePicker = window.DateRangePicker;
+  var classNames = window.classNames;
+  var asArray = window.asArray;
+  function asArray(v) {
+    return Array.isArray(v) ? v : [];
+  }
+  function App() {
+    var OPEN_HOUR = 10;
+    var CLOSE_HOUR = 22;
+    var SLOT_MINUTES = 30;
+    var [selected_date, setSelectedDate] = useState(formatDateInput(new Date()));
+    var [tables, setTables] = useState(loadJson("tables", []));
+    var [customers, setCustomers] = useState(loadJson("customers", []));
+    var [reservations, setReservations] = useState(loadJson("reservations", []));
+    var [view, setView] = useState("calendar");
+    var [table_form, setTableForm] = useState({
+      name: "",
+      capacity: "4"
+    });
+    var [reservation_modal, setReservationModal] = useState({
+      open: false,
+      mode: "create",
+      reservation_id: null,
+      table_id: "",
+      date: selected_date,
+      start_time: "18:00",
+      duration_minutes: 90,
+      customer_name: "",
+      phone: "",
+      party_size: "2",
+      note: ""
+    });
+    useEffect(function () {
+      saveJson("tables", tables);
+    }, [tables]);
+    useEffect(function () {
+      saveJson("customers", customers);
+    }, [customers]);
+    useEffect(function () {
+      saveJson("reservations", reservations);
+    }, [reservations]);
+    useEffect(function () {
+      setReservationModal(function (prev) {
+        return Object.assign({}, prev, {
+          date: selected_date
+        });
+      });
+    }, [selected_date]);
+    var time_slots = useMemo(function () {
+      return buildTimeSlots(OPEN_HOUR, CLOSE_HOUR, SLOT_MINUTES);
+    }, []);
+    var tables_sorted = useMemo(function () {
+      return asArray(tables).slice().sort(function (a, b) {
+        return String(a.name).localeCompare(String(b.name), "ja");
+      });
+    }, [tables]);
+    var daily_reservations = useMemo(function () {
+      return asArray(reservations).filter(function (item) {
+        return item.date === selected_date;
+      }).slice().sort(function (a, b) {
+        if (a.start_minutes !== b.start_minutes) return a.start_minutes - b.start_minutes;
+        return String(a.table_name).localeCompare(String(b.table_name), "ja");
+      });
+    }, [reservations, selected_date]);
+    var customer_map = useMemo(function () {
+      var map = {};
+      asArray(customers).forEach(function (customer) {
+        map[customer.phone] = customer;
+      });
+      return map;
+    }, [customers]);
+    var reservation_count_today = daily_reservations.length;
+    var customer_count = customers.length;
+    var table_count = tables.length;
+    function formatDateInput(date) {
+      var y = date.getFullYear();
+      var m = String(date.getMonth() + 1).padStart(2, "0");
+      var d = String(date.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + d;
+    }
+    function parseDateLabel(date_str) {
+      var date = new Date(date_str + "T12:00:00");
+      return date.toLocaleDateString("ja-JP", {
+        month: "long",
+        day: "numeric",
+        weekday: "short"
+      });
+    }
+    function loadJson(key, fallback) {
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        var parsed = JSON.parse(raw);
+        return parsed == null ? fallback : parsed;
+      } catch (e) {
+        return fallback;
+      }
+    }
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+    function buildTimeSlots(start_hour, end_hour, interval_minutes) {
+      var result = [];
+      for (var minutes = start_hour * 60; minutes < end_hour * 60; minutes += interval_minutes) {
+        result.push({
+          label: minutesToTime(minutes),
+          minutes: minutes
+        });
+      }
+      return result;
+    }
+    function minutesToTime(total_minutes) {
+      var h = Math.floor(total_minutes / 60);
+      var m = total_minutes % 60;
+      return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0");
+    }
+    function timeToMinutes(text) {
+      var parts = String(text || "").split(":");
+      if (parts.length !== 2) return 0;
+      return Number(parts[0]) * 60 + Number(parts[1]);
+    }
+    function addDays(date_str, diff) {
+      var date = new Date(date_str + "T12:00:00");
+      date.setDate(date.getDate() + diff);
+      return formatDateInput(date);
+    }
+    function makeId(prefix) {
+      return prefix + "_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+    }
+    function getTableById(table_id) {
+      return asArray(tables).find(function (item) {
+        return item.id === table_id;
+      });
+    }
+    function getCustomerByPhone(phone) {
+      return customer_map[phone] || null;
+    }
+    function upsertCustomerFromReservation(form) {
+      var cleaned_phone = String(form.phone || "").trim();
+      if (!cleaned_phone) return;
+      var existing = getCustomerByPhone(cleaned_phone);
+      var now_iso = new Date().toISOString();
+      if (existing) {
+        setCustomers(function (prev) {
+          return asArray(prev).map(function (item) {
+            if (item.phone !== cleaned_phone) return item;
+            return Object.assign({}, item, {
+              name: String(form.customer_name || "").trim() || item.name,
+              last_visit_date: form.date || item.last_visit_date,
+              updated_at: now_iso
+            });
+          });
+        });
+      } else {
+        setCustomers(function (prev) {
+          return asArray(prev).concat([{
+            id: makeId("customer"),
+            name: String(form.customer_name || "").trim(),
+            phone: cleaned_phone,
+            memo: "",
+            last_visit_date: form.date,
+            created_at: now_iso,
+            updated_at: now_iso
+          }]);
+        });
+      }
+    }
+    function hasConflict(form, ignore_reservation_id) {
+      var target_table = getTableById(form.table_id);
+      if (!target_table) {
+        return "対象のテーブルが見つかりません。";
+      }
+      var start_minutes = timeToMinutes(form.start_time);
+      var end_minutes = start_minutes + Number(form.duration_minutes || 90);
+      if (Number(form.party_size || 0) > Number(target_table.capacity || 0)) {
+        return "予約人数がテーブル定員を超えています。別のテーブルを選んでください。";
+      }
+      var overlap = asArray(reservations).find(function (item) {
+        if (item.id === ignore_reservation_id) return false;
+        if (item.date !== form.date) return false;
+        if (item.table_id !== form.table_id) return false;
+        var item_start = Number(item.start_minutes || 0);
+        var item_end = Number(item.end_minutes || 0);
+        return start_minutes < item_end && end_minutes > item_start;
+      });
+      if (overlap) {
+        return "同じ時間帯にこのテーブルはすでに予約されています。";
+      }
+      return "";
+    }
+    function openReservationCreate(table_id, start_minutes) {
+      var default_time = minutesToTime(start_minutes);
+      setReservationModal({
+        open: true,
+        mode: "create",
+        reservation_id: null,
+        table_id: table_id,
+        date: selected_date,
+        start_time: default_time,
+        duration_minutes: 90,
+        customer_name: "",
+        phone: "",
+        party_size: "2",
+        note: ""
+      });
+    }
+    function openReservationEdit(reservation) {
+      setReservationModal({
+        open: true,
+        mode: "edit",
+        reservation_id: reservation.id,
+        table_id: reservation.table_id,
+        date: reservation.date,
+        start_time: reservation.start_time,
+        duration_minutes: reservation.duration_minutes,
+        customer_name: reservation.customer_name,
+        phone: reservation.phone,
+        party_size: String(reservation.party_size),
+        note: reservation.note || ""
+      });
+    }
+    function closeReservationModal() {
+      setReservationModal(function (prev) {
+        return Object.assign({}, prev, {
+          open: false
+        });
+      });
+    }
+    function handlePhoneAutoFill(phone) {
+      var customer = getCustomerByPhone(phone.trim());
+      if (!customer) return;
+      setReservationModal(function (prev) {
+        return Object.assign({}, prev, {
+          customer_name: customer.name || prev.customer_name
+        });
+      });
+    }
+    function handleSaveReservation() {
+      var form = reservation_modal;
+      var selected_table = getTableById(form.table_id);
+      if (!selected_table) {
+        alert("テーブルを選択してください。");
+        return;
+      }
+      if (!String(form.customer_name || "").trim()) {
+        alert("顧客名を入力してください。");
+        return;
+      }
+      if (!String(form.phone || "").trim()) {
+        alert("電話番号を入力してください。");
+        return;
+      }
+      if (!String(form.start_time || "").trim()) {
+        alert("予約時間を入力してください。");
+        return;
+      }
+      if (Number(form.party_size || 0) <= 0) {
+        alert("予約人数を入力してください。");
+        return;
+      }
+      var conflict_message = hasConflict(form, form.mode === "edit" ? form.reservation_id : "");
+      if (conflict_message) {
+        alert(conflict_message);
+        return;
+      }
+      var start_minutes = timeToMinutes(form.start_time);
+      var end_minutes = start_minutes + Number(form.duration_minutes || 90);
+      var now_iso = new Date().toISOString();
+      var payload = {
+        id: form.mode === "edit" ? form.reservation_id : makeId("reservation"),
+        table_id: selected_table.id,
+        table_name: selected_table.name,
+        date: form.date,
+        start_time: form.start_time,
+        start_minutes: start_minutes,
+        end_minutes: end_minutes,
+        duration_minutes: Number(form.duration_minutes || 90),
+        customer_name: String(form.customer_name || "").trim(),
+        phone: String(form.phone || "").trim(),
+        party_size: Number(form.party_size || 0),
+        note: String(form.note || "").trim(),
+        updated_at: now_iso,
+        created_at: form.mode === "edit" ? now_iso : now_iso
+      };
+      if (form.mode === "edit") {
+        setReservations(function (prev) {
+          return asArray(prev).map(function (item) {
+            return item.id === payload.id ? Object.assign({}, item, payload) : item;
+          });
+        });
+      } else {
+        setReservations(function (prev) {
+          return asArray(prev).concat([payload]);
+        });
+      }
+      upsertCustomerFromReservation(form);
+      closeReservationModal();
+    }
+    function handleDeleteReservation(reservation_id) {
+      var ok = confirm("この予約を削除しますか？");
+      if (!ok) return;
+      setReservations(function (prev) {
+        return asArray(prev).filter(function (item) {
+          return item.id !== reservation_id;
+        });
+      });
+    }
+    function handleAddTable() {
+      if (!String(table_form.name || "").trim()) {
+        alert("テーブル名または番号を入力してください。");
+        return;
+      }
+      if (Number(table_form.capacity || 0) <= 0) {
+        alert("定員を入力してください。");
+        return;
+      }
+      var exists = asArray(tables).some(function (item) {
+        return String(item.name).trim() === String(table_form.name).trim();
+      });
+      if (exists) {
+        alert("同じ名前のテーブルがすでに存在します。");
+        return;
+      }
+      setTables(function (prev) {
+        return asArray(prev).concat([{
+          id: makeId("table"),
+          name: String(table_form.name || "").trim(),
+          capacity: Number(table_form.capacity || 0),
+          created_at: new Date().toISOString()
+        }]);
+      });
+      setTableForm({
+        name: "",
+        capacity: "4"
+      });
+    }
+    function handleDeleteTable(table_id) {
+      var linked = asArray(reservations).some(function (item) {
+        return item.table_id === table_id;
+      });
+      if (linked) {
+        alert("このテーブルには予約履歴があります。先に関連予約を整理してください。");
+        return;
+      }
+      var ok = confirm("このテーブルを削除しますか？");
+      if (!ok) return;
+      setTables(function (prev) {
+        return asArray(prev).filter(function (item) {
+          return item.id !== table_id;
+        });
+      });
+    }
+    function renderReservationBar(table_id, slot_minutes) {
+      var reservation = daily_reservations.find(function (item) {
+        return item.table_id === table_id && slot_minutes >= item.start_minutes && slot_minutes < item.end_minutes;
+      });
+      if (!reservation) return null;
+      if (slot_minutes !== reservation.start_minutes) return null;
+      var span = Math.max(1, Math.round(reservation.duration_minutes / SLOT_MINUTES));
+      return /*#__PURE__*/React.createElement("div", {
+        className: "absolute inset-y-1 left-1 right-1 z-20 rounded-xl border border-emerald-300 bg-emerald-100 p-2 shadow-sm cursor-pointer hover:bg-emerald-200",
+        style: {
+          width: "calc(" + span + "00% - 8px)"
+        },
+        onClick: function (e) {
+          e.stopPropagation();
+          openReservationEdit(reservation);
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-start justify-between gap-2"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-xs font-semibold text-emerald-900"
+      }, reservation.customer_name), /*#__PURE__*/React.createElement("div", {
+        className: "text-[11px] text-emerald-800"
+      }, reservation.start_time, "\u301C ", minutesToTime(reservation.end_minutes))), /*#__PURE__*/React.createElement("div", {
+        className: "rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-emerald-700"
+      }, "\uD83D\uDC65 ", reservation.party_size)), /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 text-[11px] text-emerald-800"
+      }, reservation.phone), reservation.note ? /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 line-clamp-1 text-[10px] text-emerald-700"
+      }, "\uD83D\uDCDD ", reservation.note) : null);
+    }
+    function renderCalendarView() {
+      if (tables_sorted.length === 0) {
+        return /*#__PURE__*/React.createElement("div", {
+          className: "rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "text-4xl mb-3"
+        }, "\uD83E\uDE91"), /*#__PURE__*/React.createElement("div", {
+          className: "text-lg font-semibold text-slate-800"
+        }, "\u307E\u305A\u306F\u30C6\u30FC\u30D6\u30EB\u3092\u4F5C\u6210\u3057\u3066\u304F\u3060\u3055\u3044"), /*#__PURE__*/React.createElement("div", {
+          className: "mt-2 text-sm text-slate-500"
+        }, "\u4E88\u7D04\u30AB\u30EC\u30F3\u30C0\u30FC\u3092\u4F7F\u3046\u524D\u306B\u3001\u30C6\u30FC\u30D6\u30EB\u540D\u3068\u5B9A\u54E1\u3092\u767B\u9332\u3057\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("button", {
+          className: "mt-5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white",
+          onClick: function () {
+            setView("tables");
+          }
+        }, "\u30C6\u30FC\u30D6\u30EB\u7BA1\u7406\u3078"));
+      }
+      return /*#__PURE__*/React.createElement("div", {
+        className: "rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "border-b border-slate-200 bg-slate-50"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "grid",
+        style: {
+          gridTemplateColumns: "140px repeat(" + time_slots.length + ", minmax(72px, 1fr))"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "sticky left-0 z-30 border-r border-slate-200 bg-slate-50 px-4 py-3 text-xs font-semibold text-slate-500"
+      }, "\u30C6\u30FC\u30D6\u30EB"), asArray(time_slots).map(function (slot) {
+        return /*#__PURE__*/React.createElement("div", {
+          key: slot.minutes,
+          className: "border-r border-slate-200 px-2 py-3 text-center text-xs font-semibold text-slate-500"
+        }, slot.label);
+      }))), /*#__PURE__*/React.createElement("div", {
+        className: "overflow-auto"
+      }, asArray(tables_sorted).map(function (table) {
+        return /*#__PURE__*/React.createElement("div", {
+          key: table.id,
+          className: "grid min-h-[88px] border-b border-slate-200",
+          style: {
+            gridTemplateColumns: "140px repeat(" + time_slots.length + ", minmax(72px, 1fr))"
+          }
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "sticky left-0 z-20 flex flex-col justify-center border-r border-slate-200 bg-white px-4 py-3"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "text-sm font-semibold text-slate-900"
+        }, table.name), /*#__PURE__*/React.createElement("div", {
+          className: "text-xs text-slate-500"
+        }, "\u5B9A\u54E1 ", table.capacity, " \u540D")), asArray(time_slots).map(function (slot) {
+          return /*#__PURE__*/React.createElement("div", {
+            key: table.id + "_" + slot.minutes,
+            className: "relative border-r border-slate-100 bg-white hover:bg-amber-50 cursor-pointer",
+            onClick: function () {
+              openReservationCreate(table.id, slot.minutes);
+            },
+            title: "クリックで " + table.name + " の " + slot.label + " に予約追加"
+          }, /*#__PURE__*/React.createElement("div", {
+            className: "absolute inset-0"
+          }, renderReservationBar(table.id, slot.minutes)));
+        }));
+      })));
+    }
+    function renderReservationModal() {
+      if (!reservation_modal.open) return null;
+      var selected_table = getTableById(reservation_modal.table_id);
+      var capacity_warning = "";
+      if (selected_table && Number(reservation_modal.party_size || 0) > Number(selected_table.capacity || 0)) {
+        capacity_warning = "⚠️ この人数はテーブル定員を超えています。";
+      }
+      return /*#__PURE__*/React.createElement("div", {
+        className: "fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "w-full max-w-2xl rounded-3xl bg-white shadow-2xl"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between border-b border-slate-200 px-6 py-4"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-lg font-semibold text-slate-900"
+      }, reservation_modal.mode === "edit" ? "予約を編集" : "予約を追加"), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500"
+      }, "\uD83D\uDCC5 ", parseDateLabel(reservation_modal.date), " \u306E\u4E88\u7D04")), /*#__PURE__*/React.createElement("button", {
+        className: "rounded-xl border border-slate-200 px-3 py-1.5 text-sm text-slate-600",
+        onClick: closeReservationModal
+      }, "\u9589\u3058\u308B")), /*#__PURE__*/React.createElement("div", {
+        className: "grid gap-4 p-6 md:grid-cols-2"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u30C6\u30FC\u30D6\u30EB"), /*#__PURE__*/React.createElement("select", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        value: reservation_modal.table_id,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              table_id: e.target.value
+            });
+          });
+        }
+      }, /*#__PURE__*/React.createElement("option", {
+        value: ""
+      }, "\u30C6\u30FC\u30D6\u30EB\u3092\u9078\u629E"), asArray(tables_sorted).map(function (table) {
+        return /*#__PURE__*/React.createElement("option", {
+          key: table.id,
+          value: table.id
+        }, table.name, "\uFF08\u5B9A\u54E1 ", table.capacity, " \u540D\uFF09");
+      }))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u4E88\u7D04\u65E5"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        type: "date",
+        value: reservation_modal.date,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              date: e.target.value
+            });
+          });
+        }
+      })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u4E88\u7D04\u6642\u9593"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        type: "time",
+        step: "1800",
+        value: reservation_modal.start_time,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              start_time: e.target.value
+            });
+          });
+        }
+      })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u5229\u7528\u6642\u9593"), /*#__PURE__*/React.createElement("select", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        value: reservation_modal.duration_minutes,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              duration_minutes: Number(e.target.value)
+            });
+          });
+        }
+      }, /*#__PURE__*/React.createElement("option", {
+        value: "60"
+      }, "60\u5206"), /*#__PURE__*/React.createElement("option", {
+        value: "90"
+      }, "90\u5206"), /*#__PURE__*/React.createElement("option", {
+        value: "120"
+      }, "120\u5206"), /*#__PURE__*/React.createElement("option", {
+        value: "150"
+      }, "150\u5206"), /*#__PURE__*/React.createElement("option", {
+        value: "180"
+      }, "180\u5206"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u9867\u5BA2\u540D"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        value: reservation_modal.customer_name,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              customer_name: e.target.value
+            });
+          });
+        },
+        placeholder: "\u4F8B:\u5C71\u7530 \u82B1\u5B50"
+      })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u96FB\u8A71\u756A\u53F7"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        value: reservation_modal.phone,
+        onChange: function (e) {
+          var next_phone = e.target.value;
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              phone: next_phone
+            });
+          });
+          handlePhoneAutoFill(next_phone);
+        },
+        placeholder: "\u4F8B:090-1234-5678"
+      }), getCustomerByPhone(reservation_modal.phone.trim()) ? /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 text-xs text-emerald-600"
+      }, "\u2705 \u65E2\u5B58\u9867\u5BA2\u3092\u691C\u51FA\u3057\u307E\u3057\u305F\u3002\u540D\u524D\u3092\u81EA\u52D5\u88DC\u5B8C\u3057\u3066\u3044\u307E\u3059\u3002") : /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 text-xs text-slate-400"
+      }, "\u96FB\u8A71\u756A\u53F7\u304C\u4E00\u81F4\u3059\u308B\u3068\u65E2\u5B58\u9867\u5BA2\u60C5\u5831\u3092\u518D\u5229\u7528\u3057\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u4E88\u7D04\u4EBA\u6570"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        type: "number",
+        min: "1",
+        value: reservation_modal.party_size,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              party_size: e.target.value
+            });
+          });
+        }
+      }), capacity_warning ? /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 text-xs font-medium text-rose-600"
+      }, capacity_warning) : selected_table ? /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 text-xs text-slate-400"
+      }, "\u3053\u306E\u30C6\u30FC\u30D6\u30EB\u306E\u5B9A\u54E1\u306F ", selected_table.capacity, " \u540D\u3067\u3059\u3002") : null), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u5099\u8003"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        value: reservation_modal.note,
+        onChange: function (e) {
+          setReservationModal(function (prev) {
+            return Object.assign({}, prev, {
+              note: e.target.value
+            });
+          });
+        },
+        placeholder: "\u4F8B:\u7A93\u5074\u5E0C\u671B\u3001\u8A95\u751F\u65E5\u5229\u7528"
+      }))), /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between border-t border-slate-200 px-6 py-4"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500"
+      }, "\u540C\u6642\u9593\u5E2F\u306E\u91CD\u8907\u4E88\u7D04\u3068\u5B9A\u54E1\u8D85\u904E\u306F\u81EA\u52D5\u3067\u9632\u6B62\u3055\u308C\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2"
+      }, reservation_modal.mode === "edit" ? /*#__PURE__*/React.createElement("button", {
+        className: "rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700",
+        onClick: function () {
+          handleDeleteReservation(reservation_modal.reservation_id);
+          closeReservationModal();
+        }
+      }, "\u524A\u9664") : null, /*#__PURE__*/React.createElement("button", {
+        className: "rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white",
+        onClick: handleSaveReservation
+      }, reservation_modal.mode === "edit" ? "更新する" : "予約を保存")))));
+    }
+    function renderTablesView() {
+      return /*#__PURE__*/React.createElement("div", {
+        className: "grid gap-6 xl:grid-cols-[360px,1fr]"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold text-slate-900"
+      }, "\uD83E\uDE91 \u30C6\u30FC\u30D6\u30EB\u8FFD\u52A0"), /*#__PURE__*/React.createElement("div", {
+        className: "mt-1 text-xs text-slate-500"
+      }, "\u55B6\u696D\u958B\u59CB\u524D\u306B\u30C6\u30FC\u30D6\u30EB\u69CB\u6210\u3092\u767B\u9332\u3057\u3066\u304A\u304F\u3068\u3001\u30AB\u30EC\u30F3\u30C0\u30FC\u904B\u7528\u304C\u697D\u306B\u306A\u308A\u307E\u3059\u3002"), /*#__PURE__*/React.createElement("div", {
+        className: "mt-4 space-y-4"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u30C6\u30FC\u30D6\u30EB\u540D / \u756A\u53F7"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        value: table_form.name,
+        onChange: function (e) {
+          setTableForm(function (prev) {
+            return Object.assign({}, prev, {
+              name: e.target.value
+            });
+          });
+        },
+        placeholder: "\u4F8B:\u30C6\u30FC\u30D6\u30EBA / 1\u756A\u5E2D"
+      })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+        className: "mb-1 block text-xs font-semibold text-slate-600"
+      }, "\u5B9A\u54E1"), /*#__PURE__*/React.createElement("input", {
+        className: "w-full rounded-xl border border-slate-300 px-3 py-2 text-sm",
+        type: "number",
+        min: "1",
+        value: table_form.capacity,
+        onChange: function (e) {
+          setTableForm(function (prev) {
+            return Object.assign({}, prev, {
+              capacity: e.target.value
+            });
+          });
+        }
+      })), /*#__PURE__*/React.createElement("button", {
+        className: "w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white",
+        onClick: handleAddTable
+      }, "\u30C6\u30FC\u30D6\u30EB\u3092\u8FFD\u52A0"))), /*#__PURE__*/React.createElement("div", {
+        className: "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold text-slate-900"
+      }, "\u30C6\u30FC\u30D6\u30EB\u4E00\u89A7"), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500"
+      }, "\u767B\u9332\u6E08\u307F\u306E\u5E2D\u69CB\u6210\u3092\u78BA\u8A8D\u30FB\u6574\u7406\u3067\u304D\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+        className: "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
+      }, "\u5408\u8A08 ", tables_sorted.length, " \u5353")), /*#__PURE__*/React.createElement("div", {
+        className: "mt-4 space-y-3"
+      }, tables_sorted.length === 0 ? /*#__PURE__*/React.createElement("div", {
+        className: "rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400"
+      }, "\u307E\u3060\u30C6\u30FC\u30D6\u30EB\u304C\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002") : asArray(tables_sorted).map(function (table) {
+        return /*#__PURE__*/React.createElement("div", {
+          key: table.id,
+          className: "flex items-center justify-between rounded-2xl border border-slate-200 p-4"
+        }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+          className: "text-sm font-semibold text-slate-900"
+        }, table.name), /*#__PURE__*/React.createElement("div", {
+          className: "text-xs text-slate-500"
+        }, "\u5B9A\u54E1 ", table.capacity, " \u540D")), /*#__PURE__*/React.createElement("button", {
+          className: "rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50",
+          onClick: function () {
+            handleDeleteTable(table.id);
+          }
+        }, "\u524A\u9664"));
+      }))));
+    }
+    function renderCustomersView() {
+      var customers_sorted = asArray(customers).slice().sort(function (a, b) {
+        return String(a.name).localeCompare(String(b.name), "ja");
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        className: "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold text-slate-900"
+      }, "\uD83D\uDC65 \u9867\u5BA2\u4E00\u89A7"), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500"
+      }, "\u96FB\u8A71\u756A\u53F7\u30D9\u30FC\u30B9\u3067\u518D\u6765\u5E97\u9867\u5BA2\u3092\u3059\u3050\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+        className: "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
+      }, customers_sorted.length, " \u540D")), /*#__PURE__*/React.createElement("div", {
+        className: "mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3"
+      }, customers_sorted.length === 0 ? /*#__PURE__*/React.createElement("div", {
+        className: "rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400 md:col-span-2 xl:col-span-3"
+      }, "\u307E\u3060\u9867\u5BA2\u30C7\u30FC\u30BF\u306F\u3042\u308A\u307E\u305B\u3093\u3002\u4E88\u7D04\u3092\u767B\u9332\u3059\u308B\u3068\u81EA\u52D5\u3067\u84C4\u7A4D\u3055\u308C\u307E\u3059\u3002") : asArray(customers_sorted).map(function (customer) {
+        var history = asArray(reservations).filter(function (r) {
+          return r.phone === customer.phone;
+        });
+        return /*#__PURE__*/React.createElement("div", {
+          key: customer.id,
+          className: "rounded-2xl border border-slate-200 p-4"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "flex items-start justify-between gap-3"
+        }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+          className: "text-sm font-semibold text-slate-900"
+        }, customer.name || "名称未設定"), /*#__PURE__*/React.createElement("div", {
+          className: "text-xs text-slate-500"
+        }, customer.phone)), /*#__PURE__*/React.createElement("div", {
+          className: "rounded-full bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-700"
+        }, "\u6765\u5E97 ", history.length, " \u56DE")), /*#__PURE__*/React.createElement("div", {
+          className: "mt-3 space-y-1 text-xs text-slate-600"
+        }, /*#__PURE__*/React.createElement("div", null, "\u6700\u7D42\u4E88\u7D04\u65E5: ", customer.last_visit_date || "未登録"), /*#__PURE__*/React.createElement("div", null, "\u9867\u5BA2ID: ", customer.id)), /*#__PURE__*/React.createElement("div", {
+          className: "mt-3 rounded-xl bg-slate-50 p-3 text-xs text-slate-500"
+        }, "\u3053\u306E\u96FB\u8A71\u756A\u53F7\u3092\u4E88\u7D04\u5165\u529B\u3059\u308B\u3068\u3001\u65E2\u5B58\u9867\u5BA2\u3068\u3057\u3066\u81EA\u52D5\u88DC\u5B8C\u3055\u308C\u307E\u3059\u3002"));
+      })));
+    }
+    function renderReservationsListView() {
+      var reservations_sorted = asArray(reservations).slice().sort(function (a, b) {
+        if (a.date !== b.date) return String(a.date).localeCompare(String(b.date));
+        return a.start_minutes - b.start_minutes;
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        className: "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center justify-between"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold text-slate-900"
+      }, "\uD83D\uDCCB \u4E88\u7D04\u4E00\u89A7"), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500"
+      }, "\u5168\u4E88\u7D04\u3092\u65E5\u4ED8\u9806\u3067\u78BA\u8A8D\u3057\u3001\u8A73\u7D30\u7DE8\u96C6\u3082\u3067\u304D\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+        className: "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
+      }, reservations_sorted.length, " \u4EF6")), /*#__PURE__*/React.createElement("div", {
+        className: "mt-4 space-y-3"
+      }, reservations_sorted.length === 0 ? /*#__PURE__*/React.createElement("div", {
+        className: "rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400"
+      }, "\u307E\u3060\u4E88\u7D04\u304C\u3042\u308A\u307E\u305B\u3093\u3002") : asArray(reservations_sorted).map(function (item) {
+        return /*#__PURE__*/React.createElement("div", {
+          key: item.id,
+          className: "flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between"
+        }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+          className: "text-sm font-semibold text-slate-900"
+        }, item.date, " / ", item.start_time, " / ", item.table_name), /*#__PURE__*/React.createElement("div", {
+          className: "mt-1 text-xs text-slate-600"
+        }, item.customer_name, " \u30FB ", item.phone, " \u30FB ", item.party_size, "\u540D"), /*#__PURE__*/React.createElement("div", {
+          className: "mt-1 text-xs text-slate-500"
+        }, "\u5229\u7528\u6642\u9593 ", item.duration_minutes, "\u5206 ", item.note ? "・ 備考: " + item.note : "")), /*#__PURE__*/React.createElement("div", {
+          className: "flex gap-2"
+        }, /*#__PURE__*/React.createElement("button", {
+          className: "rounded-xl border border-slate-200 px-3 py-1.5 text-xs text-slate-600",
+          onClick: function () {
+            openReservationEdit(item);
+          }
+        }, "\u8A73\u7D30 / \u7DE8\u96C6"), /*#__PURE__*/React.createElement("button", {
+          className: "rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs text-rose-700",
+          onClick: function () {
+            handleDeleteReservation(item.id);
+          }
+        }, "\u524A\u9664")));
+      })));
+    }
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-slate-100 text-slate-900"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "mx-auto max-w-[1600px] p-4 md:p-6"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "mb-6 rounded-[28px] bg-gradient-to-r from-slate-900 via-slate-800 to-amber-900 p-6 text-white shadow-lg"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs font-semibold uppercase tracking-[0.2em] text-amber-200"
+    }, "Restaurant Booking"), /*#__PURE__*/React.createElement("h1", {
+      className: "mt-2 text-2xl font-bold"
+    }, "\uD83C\uDF7D\uFE0F \u5358\u65E5\u4E88\u7D04\u30AB\u30EC\u30F3\u30C0\u30FC"), /*#__PURE__*/React.createElement("div", {
+      className: "mt-2 text-sm text-slate-200"
+    }, "\u65E5\u4ED8\u3054\u3068\u306B\u3001\u30C6\u30FC\u30D6\u30EB \xD7 \u6642\u9593\u3067\u4E88\u7D04\u72B6\u6CC1\u3092\u3072\u3068\u76EE\u3067\u7BA1\u7406\u3067\u304D\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+      className: "grid gap-3 sm:grid-cols-3"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "rounded-2xl bg-white/10 px-4 py-3 backdrop-blur"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-[11px] text-slate-300"
+    }, "\u672C\u65E5\u306E\u4E88\u7D04"), /*#__PURE__*/React.createElement("div", {
+      className: "mt-1 text-xl font-semibold"
+    }, reservation_count_today)), /*#__PURE__*/React.createElement("div", {
+      className: "rounded-2xl bg-white/10 px-4 py-3 backdrop-blur"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-[11px] text-slate-300"
+    }, "\u767B\u9332\u9867\u5BA2"), /*#__PURE__*/React.createElement("div", {
+      className: "mt-1 text-xl font-semibold"
+    }, customer_count)), /*#__PURE__*/React.createElement("div", {
+      className: "rounded-2xl bg-white/10 px-4 py-3 backdrop-blur"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-[11px] text-slate-300"
+    }, "\u30C6\u30FC\u30D6\u30EB\u6570"), /*#__PURE__*/React.createElement("div", {
+      className: "mt-1 text-xl font-semibold"
+    }, table_count))))), /*#__PURE__*/React.createElement("div", {
+      className: "mb-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-wrap gap-2"
+    }, [{
+      key: "calendar",
+      label: "📅 カレンダー"
+    }, {
+      key: "tables",
+      label: "🪑 テーブル管理"
+    }, {
+      key: "customers",
+      label: "👥 顧客一覧"
+    }, {
+      key: "reservations",
+      label: "📋 予約一覧"
+    }].map(function (tab) {
+      return /*#__PURE__*/React.createElement("button", {
+        key: tab.key,
+        className: "rounded-2xl px-4 py-2 text-sm font-medium " + (view === tab.key ? "bg-slate-900 text-white shadow-sm" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"),
+        onClick: function () {
+          setView(tab.key);
+        }
+      }, tab.label);
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600",
+      onClick: function () {
+        setSelectedDate(addDays(selected_date, -1));
+      }
+    }, "\u2190 \u524D\u65E5"), /*#__PURE__*/React.createElement("input", {
+      className: "rounded-xl border border-slate-200 px-3 py-2 text-sm",
+      type: "date",
+      value: selected_date,
+      onChange: function (e) {
+        setSelectedDate(e.target.value);
+      }
+    }), /*#__PURE__*/React.createElement("button", {
+      className: "rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600",
+      onClick: function () {
+        setSelectedDate(formatDateInput(new Date()));
+      }
+    }, "\u4ECA\u65E5"), /*#__PURE__*/React.createElement("button", {
+      className: "rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600",
+      onClick: function () {
+        setSelectedDate(addDays(selected_date, 1));
+      }
+    }, "\u7FCC\u65E5 \u2192"), /*#__PURE__*/React.createElement("div", {
+      className: "ml-1 rounded-xl bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700"
+    }, parseDateLabel(selected_date)))), view === "calendar" ? renderCalendarView() : null, view === "tables" ? renderTablesView() : null, view === "customers" ? renderCustomersView() : null, view === "reservations" ? renderReservationsListView() : null, renderReservationModal()));
+  }
+  return App;
+}
+  var App = __renderApp(API_BASE);
+  ReactDOM.createRoot(document.getElementById('root'))
+    .render(React.createElement(App));
+} catch(e) {
+  reportError('RenderError', e.message, e.stack || '');
+}
+</script>
+</body>
+</html>

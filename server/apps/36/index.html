@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./react.js"></script>
+  <script src="./react-is.js"></script>
+  <script src="./react-dom.js"></script>
+  <script src="./prop-types.js"></script>
+  <script src="./recharts.js"></script>
+  <script>
+(function () {
+  if (!window.React) return;
+  var React = window.React;
+  var Recharts = window.Recharts || {};
+
+  window.React = React;
+  window.ReactDOM = window.ReactDOM;
+  window.Fragment = React.Fragment;
+
+  window.useState = React.useState;
+  window.useEffect = React.useEffect;
+  window.useMemo = React.useMemo;
+  window.useCallback = React.useCallback;
+  window.useRef = React.useRef;
+  window.useReducer = React.useReducer;
+
+  var chartGlobals = {
+    BarChart: Recharts.BarChart,
+    Bar: Recharts.Bar,
+    LineChart: Recharts.LineChart,
+    Line: Recharts.Line,
+    AreaChart: Recharts.AreaChart,
+    Area: Recharts.Area,
+    PieChart: Recharts.PieChart,
+    Pie: Recharts.Pie,
+    Cell: Recharts.Cell,
+    XAxis: Recharts.XAxis,
+    YAxis: Recharts.YAxis,
+    CartesianGrid: Recharts.CartesianGrid,
+    Tooltip: Recharts.Tooltip,
+    Legend: Recharts.Legend,
+    ResponsiveContainer: Recharts.ResponsiveContainer,
+    RadarChart: Recharts.RadarChart,
+    Radar: Recharts.Radar,
+    PolarGrid: Recharts.PolarGrid,
+    PolarAngleAxis: Recharts.PolarAngleAxis,
+    PolarRadiusAxis: Recharts.PolarRadiusAxis,
+    ComposedChart: Recharts.ComposedChart,
+    ScatterChart: Recharts.ScatterChart,
+    Scatter: Recharts.Scatter,
+    Treemap: Recharts.Treemap,
+    RadialBarChart: Recharts.RadialBarChart,
+    RadialBar: Recharts.RadialBar,
+    FunnelChart: Recharts.FunnelChart,
+    Funnel: Recharts.Funnel,
+    Sankey: Recharts.Sankey,
+    ReferenceArea: Recharts.ReferenceArea,
+    ReferenceLine: Recharts.ReferenceLine,
+    ReferenceDot: Recharts.ReferenceDot,
+    Brush: Recharts.Brush,
+    Label: Recharts.Label,
+    LabelList: Recharts.LabelList
+  };
+  Object.keys(chartGlobals).forEach(function (key) {
+    if (chartGlobals[key]) window[key] = chartGlobals[key];
+  });
+
+  window.asArray = window.asArray || function (v) {
+    return Array.isArray(v) ? v : [];
+  };
+  window.classNames = window.classNames || function () {
+    return Array.prototype.filter.call(arguments, Boolean).join(' ');
+  };
+
+  var iconEmojiMap = {
+    Search: '🔍', Plus: '➕', Minus: '➖', X: '✕', Check: '✓',
+    ChevronDown: '▾', ChevronUp: '▴', ChevronLeft: '◂', ChevronRight: '▸',
+    ArrowLeft: '←', ArrowRight: '→', Calendar: '📅', Clock: '🕒', Bell: '🔔',
+    Settings: '⚙️', User: '👤', Users: '👥', Home: '🏠', Menu: '☰', Filter: '🧪',
+    Download: '⬇️', Upload: '⬆️', Trash2: '🗑️', Edit: '✏️', Eye: '👁️',
+    EyeOff: '🙈', Copy: '📄', Share: '🔗', ExternalLink: '↗️', Star: '⭐',
+    Heart: '❤️', AlertCircle: '⚠️', Info: 'ℹ️', HelpCircle: '❔',
+    ShoppingCart: '🛒', CreditCard: '💳', DollarSign: '💲', TrendingUp: '📈',
+    TrendingDown: '📉', BarChart3: '📊', PieChart: '🥧', FileText: '📄',
+    Printer: '🖨️', QrCode: '▦', Utensils: '🍽️', Coffee: '☕', Wine: '🍷',
+    Store: '🏪', Package: '📦', Phone: '📞', Mail: '✉️', MapPin: '📍',
+    Navigation: '🧭', Sun: '☀️', Moon: '🌙', Loader2: '⏳', RefreshCw: '🔄',
+    MoreHorizontal: '⋯', MoreVertical: '⋮', GripVertical: '⋮', LogOut: '↩️',
+    Save: '💾', Send: '📨'
+  };
+
+  window.Icon = window.Icon || function Icon(props) {
+    var name = props && props.name ? props.name : 'Icon';
+    var size = props && props.size ? props.size : 18;
+    var className = props && props.className ? props.className : '';
+    var style = props && props.style ? props.style : {};
+    var title = props && props.title ? props.title : name;
+    var rest = Object.assign({}, props || {});
+    delete rest.name;
+    delete rest.size;
+    delete rest.className;
+    delete rest.style;
+    delete rest.title;
+    return React.createElement('span', Object.assign({}, rest, {
+      title: title,
+      className: className,
+      style: Object.assign({
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: size,
+        height: size,
+        lineHeight: 1,
+        fontSize: Math.max(12, Math.round(size * 0.9))
+      }, style)
+    }), iconEmojiMap[name] || '◻︎');
+  };
+
+  ['Search','Plus','Minus','X','Check','ChevronDown','ChevronUp','ChevronLeft','ChevronRight','ArrowLeft','ArrowRight','Calendar','Clock','Bell','Settings','User','Users','Home','Menu','Filter','Download','Upload','Trash2','Edit','Eye','EyeOff','Copy','Share','ExternalLink','Star','Heart','AlertCircle','Info','HelpCircle','ShoppingCart','CreditCard','DollarSign','TrendingUp','TrendingDown','BarChart3','PieChart','FileText','Printer','QrCode','Utensils','Coffee','Wine','Store','Package','Phone','Mail','MapPin','Navigation','Sun','Moon','Loader2','RefreshCw','MoreHorizontal','MoreVertical','GripVertical','LogOut','Save','Send'].forEach(function (name) {
+    window[name + 'Icon'] = function ShortcutIcon(props) {
+      return React.createElement(window.Icon, Object.assign({ name: name }, props || {}));
+    };
+  });
+
+  window.Dialog = window.Dialog || function Dialog(props) {
+    var open = !!(props && props.open);
+    if (!open) return null;
+    var onClose = props && props.onClose;
+    return React.createElement('div', {
+      className: 'fixed inset-0 z-50 flex items-center justify-center',
+      onClick: function (e) { if (e.target === e.currentTarget && onClose) onClose(); }
+    },
+      React.createElement('div', { className: 'fixed inset-0 bg-black/40' }),
+      React.createElement('div', { className: 'relative z-10 w-full max-w-lg mx-4 max-h-[85vh] overflow-auto rounded-xl bg-white p-6 shadow-2xl' },
+        props && props.title ? React.createElement('h2', { className: 'text-lg font-semibold mb-4' }, props.title) : null,
+        React.createElement('button', { className: 'absolute right-3 top-3 text-xl leading-none text-gray-400 hover:text-gray-600', onClick: onClose }, '×'),
+        props && props.children
+      )
+    );
+  };
+
+  window.Tabs = window.Tabs || function Tabs(props) {
+    var tabs = window.asArray(props && props.tabs);
+    var active = props && props.active;
+    var onChange = props && props.onChange;
+    return React.createElement('div', { className: 'flex gap-1 border-b border-slate-200' },
+      tabs.map(function (tab) {
+        var isActive = tab.key === active;
+        return React.createElement('button', {
+          key: tab.key,
+          className: 'px-4 py-2 text-sm font-medium border-b-2 transition-colors ' + (isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'),
+          onClick: function () { if (onChange) onChange(tab.key); }
+        }, tab.label);
+      })
+    );
+  };
+
+  window.Badge = window.Badge || function Badge(props) {
+    var colorMap = {
+      gray: 'bg-gray-100 text-gray-700', blue: 'bg-blue-100 text-blue-700', green: 'bg-green-100 text-green-700',
+      red: 'bg-red-100 text-red-700', yellow: 'bg-yellow-100 text-yellow-700', purple: 'bg-purple-100 text-purple-700'
+    };
+    var color = props && props.color ? props.color : 'gray';
+    return React.createElement('span', { className: 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ' + (colorMap[color] || colorMap.gray) }, props && props.children);
+  };
+
+  window.Spinner = window.Spinner || function Spinner(props) {
+    var size = props && props.size ? props.size : 20;
+    var className = props && props.className ? props.className : '';
+    return React.createElement('svg', { className: 'animate-spin text-blue-600 ' + className, width: size, height: size, viewBox: '0 0 24 24', fill: 'none' },
+      React.createElement('circle', { cx: 12, cy: 12, r: 10, stroke: 'currentColor', strokeWidth: 3, opacity: 0.25 }),
+      React.createElement('path', { d: 'M4 12a8 8 0 018-8', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round' })
+    );
+  };
+
+  window.EmptyState = window.EmptyState || function EmptyState(props) {
+    return React.createElement('div', { className: 'flex flex-col items-center justify-center py-12 text-gray-400' },
+      React.createElement('span', { className: 'mb-3 text-4xl' }, (props && props.icon) || '📭'),
+      React.createElement('p', { className: 'text-sm' }, (props && props.message) || 'データがありません')
+    );
+  };
+
+  window.Toggle = window.Toggle || function Toggle(props) {
+    var checked = !!(props && props.checked);
+    var onChange = props && props.onChange;
+    return React.createElement('label', { className: 'inline-flex cursor-pointer items-center gap-2' },
+      React.createElement('div', {
+        className: 'relative h-5 w-10 rounded-full transition-colors ' + (checked ? 'bg-blue-600' : 'bg-gray-300'),
+        onClick: function () { if (onChange) onChange(!checked); }
+      }, React.createElement('div', { className: 'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-5' : 'translate-x-0.5') })),
+      props && props.label ? React.createElement('span', { className: 'text-sm text-gray-700' }, props.label) : null
+    );
+  };
+
+  window.DatePicker = window.DatePicker || function DatePicker(props) {
+    return React.createElement('input', {
+      type: 'date', value: (props && props.value) || '', min: props && props.min, max: props && props.max,
+      onChange: function (e) { if (props && props.onChange) props.onChange(e.target.value); },
+      className: 'border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + ((props && props.className) || '')
+    });
+  };
+
+  window.TimePicker = window.TimePicker || function TimePicker(props) {
+    return React.createElement('input', {
+      type: 'time', value: (props && props.value) || '',
+      onChange: function (e) { if (props && props.onChange) props.onChange(e.target.value); },
+      className: 'border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + ((props && props.className) || '')
+    });
+  };
+
+  window.DateRangePicker = window.DateRangePicker || function DateRangePicker(props) {
+    return React.createElement('div', { className: 'inline-flex items-center gap-2' },
+      React.createElement(window.DatePicker, { value: props && props.startDate, onChange: props && props.onStartChange, max: props && props.endDate }),
+      React.createElement('span', { className: 'text-sm text-gray-400' }, '〜'),
+      React.createElement(window.DatePicker, { value: props && props.endDate, onChange: props && props.onEndChange, min: props && props.startDate })
+    );
+  };
+})();</script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f8fafc}
+    #funfo-powered{display:none;height:28px;border-bottom:1px solid #e5e7eb;background:#fafafa;color:#52525b;font-size:12px;
+      align-items:center;justify-content:center;gap:6px}
+    #funfo-powered a{color:#18181b;text-decoration:none}
+    #funfo-powered a:hover{text-decoration:underline;color:#000}
+    #err{color:#ef4444;background:#1e1e1e;padding:16px;font-size:12px;white-space:pre-wrap;
+         font-family:monospace;margin:16px;border-radius:8px;display:none}
+  </style>
+</head>
+<body>
+<div id="funfo-powered">powered by
+  <span style="display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#27272a;">
+    <span style="width:14px;height:14px;border-radius:4px;background:#18181b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">✦</span>
+    funfo AI
+  </span>
+  <a href="" target="_blank" rel="noopener noreferrer">公式サイト</a>
+</div>
+<div id="root"></div>
+<div id="err"></div>
+<script>
+// ── Error reporting to parent frame ──────────────────────────────────
+function reportError(type, message, detail) {
+  var entry = { type: type, message: message, detail: detail || '', time: new Date().toISOString(), url: location.href };
+  var fatal = ['CompileError','RenderError','RuntimeError','UnhandledRejection'].indexOf(type) >= 0;
+  // Show inline error panel only for fatal errors
+  var el = document.getElementById('err');
+  if (fatal && el) { el.style.display = 'block'; el.textContent = '\u274C ' + type + ': ' + message; }
+  // Send to parent (VibeCoding workspace)
+  try { window.parent.postMessage({ __funfoError: true, entry: entry }, '*'); } catch(_) {}
+}
+function postRouteChange() {
+  try {
+    window.parent.postMessage({
+      __funfoRouteChange: true,
+      path: location.pathname,
+      search: location.search || '',
+      hash: location.hash || '',
+      href: location.href,
+    }, '*');
+  } catch(_) {}
+}
+// Catch unhandled JS errors
+window.onerror = function(msg, src, line, col, err) {
+  reportError('RuntimeError', msg, err ? err.stack : ('line ' + line));
+  return false;
+};
+// Catch unhandled promise rejections
+window.addEventListener('unhandledrejection', function(e) {
+  var msg = e.reason instanceof Error ? e.reason.message : String(e.reason);
+  var detail = e.reason instanceof Error ? e.reason.stack : '';
+  reportError('UnhandledRejection', msg, detail);
+});
+// Intercept fetch to keep /api requests inside the current app base and capture API errors
+var _fetch = window.fetch;
+window.fetch = function(url, opts) {
+  var nextUrl = url;
+  if (typeof nextUrl === 'string' && APP_BASE) {
+    if (nextUrl.startsWith('/api/')) nextUrl = APP_BASE + nextUrl;
+    else if (nextUrl.startsWith('api/')) nextUrl = APP_BASE.replace(/\/$/, '/') + nextUrl;
+  }
+  return _fetch.call(this, nextUrl, opts).then(function(res) {
+    if (!res.ok) {
+      // Clone to read body without consuming it
+      res.clone().text().then(function(body) {
+        reportError('APIError', res.status + ' ' + res.statusText + ' — ' + nextUrl, body.slice(0, 300));
+      });
+    }
+    return res;
+  }).catch(function(err) {
+    reportError('NetworkError', 'Failed to fetch: ' + nextUrl, err.message);
+    throw err;
+  });
+};
+
+var API_BASE = "/app/8uuykedu";
+if (!API_BASE) {
+  var _w = location.pathname.match(/^\/w\/(w_[a-z0-9]{12}(?:_preview)?)(?:\/|$)/);
+  if (_w) API_BASE = '/w/' + _w[1];
+  if (!API_BASE) {
+    var _m = location.pathname.match(/^\/app\/([a-z0-9]{8})(?:\/|$)/);
+    if (_m) API_BASE = '/app/' + _m[1];
+  }
+}
+var APP_BASE = API_BASE || '';
+function toAppRelativeUrl(target) {
+  if (!target) return target;
+  if (typeof target !== 'string') target = String(target);
+  if (!APP_BASE) return target;
+  if (/^(https?:|data:|blob:|mailto:|tel:|javascript:)/i.test(target)) return target;
+  if (target.startsWith(APP_BASE)) return target;
+  if (target.startsWith('#')) return location.pathname + target;
+  if (target.startsWith('/')) return APP_BASE + target;
+  return APP_BASE.replace(/\/$/, '/') + target.replace(/^\.\//, '');
+}
+(function patchClientRouting() {
+  if (!APP_BASE) return;
+  var _pushState = history.pushState.bind(history);
+  var _replaceState = history.replaceState.bind(history);
+  history.pushState = function(state, title, url) {
+    var next = typeof url === 'string' ? toAppRelativeUrl(url) : url;
+    var out = _pushState(state, title, next);
+    postRouteChange();
+    return out;
+  };
+  history.replaceState = function(state, title, url) {
+    var next = typeof url === 'string' ? toAppRelativeUrl(url) : url;
+    var out = _replaceState(state, title, next);
+    postRouteChange();
+    return out;
+  };
+  var _open = window.open ? window.open.bind(window) : null;
+  if (_open) {
+    window.open = function(url, target, features) {
+      return _open(typeof url === 'string' ? toAppRelativeUrl(url) : url, target, features);
+    };
+  }
+  window.addEventListener('popstate', postRouteChange);
+  window.addEventListener('hashchange', postRouteChange);
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    while (el && el.tagName !== 'A') el = el.parentElement;
+    if (!el) return;
+    var href = el.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    var next = toAppRelativeUrl(href);
+    if (next !== href) el.setAttribute('href', next);
+    setTimeout(postRouteChange, 0);
+  }, true);
+  setTimeout(postRouteChange, 0);
+})();
+if (window.self === window.top) {
+  var bar = document.getElementById('funfo-powered');
+  if (bar) bar.style.display = 'flex';
+}
+try {
+  function __renderApp(API_BASE) {
+  var React = window.React;
+  var ReactDOM = window.ReactDOM;
+  var Fragment = window.Fragment || React && React.Fragment;
+  var useState = window.useState || React.useState;
+  var useEffect = window.useEffect || React.useEffect;
+  var useMemo = window.useMemo || React.useMemo;
+  var useCallback = window.useCallback || React.useCallback;
+  var useRef = window.useRef || React.useRef;
+  var useReducer = window.useReducer || React.useReducer;
+  var BarChart = window.BarChart;
+  var Bar = window.Bar;
+  var LineChart = window.LineChart;
+  var Line = window.Line;
+  var AreaChart = window.AreaChart;
+  var Area = window.Area;
+  var PieChart = window.PieChart;
+  var Pie = window.Pie;
+  var Cell = window.Cell;
+  var RadarChart = window.RadarChart;
+  var Radar = window.Radar;
+  var PolarGrid = window.PolarGrid;
+  var PolarAngleAxis = window.PolarAngleAxis;
+  var PolarRadiusAxis = window.PolarRadiusAxis;
+  var ComposedChart = window.ComposedChart;
+  var ScatterChart = window.ScatterChart;
+  var Scatter = window.Scatter;
+  var Treemap = window.Treemap;
+  var RadialBarChart = window.RadialBarChart;
+  var RadialBar = window.RadialBar;
+  var FunnelChart = window.FunnelChart;
+  var Funnel = window.Funnel;
+  var Sankey = window.Sankey;
+  var ReferenceArea = window.ReferenceArea;
+  var ReferenceLine = window.ReferenceLine;
+  var ReferenceDot = window.ReferenceDot;
+  var Brush = window.Brush;
+  var Label = window.Label;
+  var LabelList = window.LabelList;
+  var XAxis = window.XAxis;
+  var YAxis = window.YAxis;
+  var CartesianGrid = window.CartesianGrid;
+  var Tooltip = window.Tooltip;
+  var Legend = window.Legend;
+  var ResponsiveContainer = window.ResponsiveContainer;
+  var Icon = window.Icon;
+  var Dialog = window.Dialog;
+  var Tabs = window.Tabs;
+  var Badge = window.Badge;
+  var Spinner = window.Spinner;
+  var EmptyState = window.EmptyState;
+  var Toggle = window.Toggle;
+  var DatePicker = window.DatePicker;
+  var TimePicker = window.TimePicker;
+  var DateRangePicker = window.DateRangePicker;
+  var classNames = window.classNames;
+  var asArray = window.asArray;
+  function asArray(v) {
+    return Array.isArray(v) ? v : [];
+  }
+  function todayString() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, "0");
+    var day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+  function formatCurrency(value) {
+    return "¥" + Number(value || 0).toLocaleString();
+  }
+  function formatSignedPercent(value) {
+    var num = Number(value || 0);
+    var prefix = num > 0 ? "+" : "";
+    return prefix + num.toFixed(1) + "%";
+  }
+  function parseRecipeText(recipeText) {
+    return String(recipeText || "").split("\n").map(function (line) {
+      return line.trim();
+    }).filter(function (line) {
+      return !!line;
+    }).map(function (line, index) {
+      var parts = line.split(",");
+      return {
+        id: index + 1,
+        ingredient_id: (parts[0] || "").trim(),
+        quantity: Number((parts[1] || "0").trim() || 0)
+      };
+    }).filter(function (line) {
+      return !!line.ingredient_id;
+    });
+  }
+  function getStatusLabel(status) {
+    if (status === "danger") return "要見直し";
+    if (status === "warning") return "注意";
+    return "安定";
+  }
+  function getStatusBadge(status) {
+    if (status === "danger") return "bg-rose-50 text-rose-700 border-rose-200";
+    if (status === "warning") return "bg-amber-50 text-amber-700 border-amber-200";
+    return "bg-emerald-50 text-emerald-700 border-emerald-200";
+  }
+  function apiGet(path) {
+    return fetch(path, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+      }
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () {
+          return {};
+        }).then(function (body) {
+          throw new Error(body.error || "API error");
+        });
+      }
+      return res.json();
+    });
+  }
+  function apiSend(path, method, body) {
+    return fetch(path, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(body || {})
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () {
+          return {};
+        }).then(function (body) {
+          throw new Error(body.error || "API error");
+        });
+      }
+      return res.json();
+    });
+  }
+  function apiDelete(path) {
+    return fetch(path, {
+      method: "DELETE",
+      headers: {
+        "Accept": "application/json"
+      }
+    }).then(function (res) {
+      if (!res.ok) {
+        return res.json().catch(function () {
+          return {};
+        }).then(function (body) {
+          throw new Error(body.error || "API error");
+        });
+      }
+      return res.json();
+    });
+  }
+  function App() {
+    var [ingredients, setIngredients] = useState([]);
+    var [priceRecords, setPriceRecords] = useState([]);
+    var [menuItems, setMenuItems] = useState([]);
+    var [dashboardStats, setDashboardStats] = useState({
+      ingredient_count: 0,
+      price_record_count: 0,
+      menu_item_count: 0,
+      avg_cost_rate: 0,
+      high_risk_menu_count: 0,
+      recent_price_change_count: 0
+    });
+    var [activeTab, setActiveTab] = useState("dashboard");
+    var [loading, setLoading] = useState(true);
+    var [saving, setSaving] = useState(false);
+    var [error, setError] = useState("");
+    var [ingredientForm, setIngredientForm] = useState({
+      id: null,
+      name: "",
+      category: "野菜",
+      unit: "kg",
+      supplier: ""
+    });
+    var [priceForm, setPriceForm] = useState({
+      ingredient_id: "",
+      recorded_at: todayString(),
+      unit_price: "",
+      quantity_basis: "1"
+    });
+    var [menuForm, setMenuForm] = useState({
+      id: null,
+      name: "",
+      selling_price: "",
+      recipe_text: ""
+    });
+    function resetIngredientForm() {
+      setIngredientForm({
+        id: null,
+        name: "",
+        category: "野菜",
+        unit: "kg",
+        supplier: ""
+      });
+    }
+    function resetPriceForm() {
+      setPriceForm({
+        ingredient_id: "",
+        recorded_at: todayString(),
+        unit_price: "",
+        quantity_basis: "1"
+      });
+    }
+    function resetMenuForm() {
+      setMenuForm({
+        id: null,
+        name: "",
+        selling_price: "",
+        recipe_text: ""
+      });
+    }
+    function hydrateDashboard() {
+      setLoading(true);
+      setError("");
+      return apiGet("/api/dashboard").then(function (data) {
+        setIngredients(asArray(data.ingredients));
+        setPriceRecords(asArray(data.price_records));
+        setMenuItems(asArray(data.menu_items));
+        setDashboardStats({
+          ingredient_count: Number(data.ingredient_count || asArray(data.ingredients).length || 0),
+          price_record_count: Number(data.price_record_count || asArray(data.price_records).length || 0),
+          menu_item_count: Number(data.menu_item_count || asArray(data.menu_items).length || 0),
+          avg_cost_rate: Number(data.avg_cost_rate || 0),
+          high_risk_menu_count: Number(data.high_risk_menu_count || 0),
+          recent_price_change_count: Number(data.recent_price_change_count || 0)
+        });
+      }).catch(function (err) {
+        setError(err.message || "データの読み込みに失敗しました");
+        setIngredients([]);
+        setPriceRecords([]);
+        setMenuItems([]);
+      }).finally(function () {
+        setLoading(false);
+      });
+    }
+    useEffect(function () {
+      hydrateDashboard();
+    }, []);
+    var latestPricesByIngredient = useMemo(function () {
+      var map = {};
+      asArray(priceRecords).forEach(function (record) {
+        var current = map[record.ingredient_id];
+        if (!current || String(record.recorded_at) > String(current.recorded_at)) {
+          map[record.ingredient_id] = record;
+        }
+      });
+      return map;
+    }, [priceRecords]);
+    var ingredientStats = useMemo(function () {
+      return asArray(ingredients).map(function (ingredient) {
+        var records = asArray(priceRecords).filter(function (record) {
+          return String(record.ingredient_id) === String(ingredient.id);
+        }).sort(function (a, b) {
+          return String(a.recorded_at).localeCompare(String(b.recorded_at));
+        });
+        var latest = records[records.length - 1] || null;
+        var previous = records[records.length - 2] || null;
+        var min = null;
+        var max = null;
+        records.forEach(function (record) {
+          var value = Number(record.unit_price || 0);
+          if (min === null || value < min) min = value;
+          if (max === null || value > max) max = value;
+        });
+        var changeRate = 0;
+        if (latest && previous && Number(previous.unit_price) > 0) {
+          changeRate = (Number(latest.unit_price) - Number(previous.unit_price)) / Number(previous.unit_price) * 100;
+        }
+        return {
+          id: ingredient.id,
+          name: ingredient.name,
+          category: ingredient.category,
+          supplier: ingredient.supplier,
+          unit: ingredient.unit,
+          latest_unit_price: latest ? Number(latest.unit_price) : 0,
+          previous_unit_price: previous ? Number(previous.unit_price) : 0,
+          latest_recorded_at: latest ? latest.recorded_at : "",
+          change_rate: changeRate,
+          min_price: min || 0,
+          max_price: max || 0,
+          records: records
+        };
+      });
+    }, [ingredients, priceRecords]);
+    var menuAnalysis = useMemo(function () {
+      return asArray(menuItems).map(function (item) {
+        var recipeLines = parseRecipeText(item.recipe_text);
+        var totalCost = 0;
+        var missingCount = 0;
+        var recipeDetails = asArray(recipeLines).map(function (line) {
+          var ingredient = asArray(ingredients).find(function (ing) {
+            return String(ing.id) === String(line.ingredient_id);
+          });
+          var latestPrice = latestPricesByIngredient[line.ingredient_id];
+          var unitCost = latestPrice ? Number(latestPrice.unit_price || 0) / Number(latestPrice.quantity_basis || 1 || 1) : 0;
+          var lineCost = unitCost * Number(line.quantity || 0);
+          if (!ingredient || !latestPrice) {
+            missingCount += 1;
+          }
+          totalCost += lineCost;
+          return {
+            ingredient_id: line.ingredient_id,
+            ingredient_name: ingredient ? ingredient.name : "不明な食材",
+            quantity: Number(line.quantity || 0),
+            unit: ingredient ? ingredient.unit : "",
+            line_cost: lineCost,
+            has_price: !!latestPrice
+          };
+        });
+        var sellingPrice = Number(item.selling_price || 0);
+        var costRate = sellingPrice > 0 ? totalCost / sellingPrice * 100 : 0;
+        var grossProfit = sellingPrice - totalCost;
+        var recommendedPrice = sellingPrice;
+        var targetCostRate = 30;
+        if (totalCost > 0) {
+          recommendedPrice = Math.ceil(totalCost / (targetCostRate / 100) / 10) * 10;
+        }
+        var status = "healthy";
+        if (costRate >= 35 || missingCount > 0) status = "danger";else if (costRate >= 30) status = "warning";
+        return {
+          id: item.id,
+          name: item.name,
+          selling_price: sellingPrice,
+          recipe_text: item.recipe_text,
+          total_cost: totalCost,
+          cost_rate: costRate,
+          gross_profit: grossProfit,
+          recommended_price: recommendedPrice,
+          missing_count: missingCount,
+          status: status,
+          recipe_details: recipeDetails
+        };
+      });
+    }, [menuItems, ingredients, latestPricesByIngredient]);
+    var priceTrendData = useMemo(function () {
+      return asArray(priceRecords).slice().sort(function (a, b) {
+        return String(a.recorded_at).localeCompare(String(b.recorded_at));
+      }).map(function (record) {
+        var ingredient = asArray(ingredients).find(function (ing) {
+          return String(ing.id) === String(record.ingredient_id);
+        });
+        return {
+          recorded_at: record.recorded_at,
+          unit_price: Number(record.unit_price || 0),
+          ingredient_name: ingredient ? ingredient.name : "不明"
+        };
+      });
+    }, [priceRecords, ingredients]);
+    function saveIngredient() {
+      if (!ingredientForm.name.trim()) {
+        setError("原料名を入力してください");
+        return;
+      }
+      setSaving(true);
+      setError("");
+      var payload = {
+        name: ingredientForm.name.trim(),
+        category: ingredientForm.category,
+        unit: ingredientForm.unit.trim(),
+        supplier: ingredientForm.supplier.trim()
+      };
+      var req = ingredientForm.id ? apiSend("/api/ingredients/" + ingredientForm.id, "PUT", payload) : apiSend("/api/ingredients", "POST", payload);
+      req.then(function (saved) {
+        if (ingredientForm.id) {
+          setIngredients(function (prev) {
+            return asArray(prev).map(function (item) {
+              return String(item.id) === String(saved.id) ? saved : item;
+            });
+          });
+        } else {
+          setIngredients(function (prev) {
+            return asArray(prev).concat([saved]);
+          });
+        }
+        resetIngredientForm();
+        return hydrateDashboard();
+      }).catch(function (err) {
+        setError(err.message || "原料の保存に失敗しました");
+      }).finally(function () {
+        setSaving(false);
+      });
+    }
+    function editIngredient(item) {
+      setIngredientForm({
+        id: item.id,
+        name: item.name || "",
+        category: item.category || "野菜",
+        unit: item.unit || "kg",
+        supplier: item.supplier || ""
+      });
+      setActiveTab("ingredients");
+    }
+    function deleteIngredient(id) {
+      setSaving(true);
+      setError("");
+      apiDelete("/api/ingredients/" + id).then(function () {
+        resetIngredientForm();
+        return hydrateDashboard();
+      }).catch(function (err) {
+        setError(err.message || "原料の削除に失敗しました");
+      }).finally(function () {
+        setSaving(false);
+      });
+    }
+    function addPriceRecord() {
+      if (!priceForm.ingredient_id) {
+        setError("対象原料を選択してください");
+        return;
+      }
+      if (!priceForm.recorded_at) {
+        setError("記録日を入力してください");
+        return;
+      }
+      setSaving(true);
+      setError("");
+      apiSend("/api/price-records", "POST", {
+        ingredient_id: Number(priceForm.ingredient_id),
+        recorded_at: priceForm.recorded_at,
+        unit_price: Number(priceForm.unit_price || 0),
+        quantity_basis: Number(priceForm.quantity_basis || 1)
+      }).then(function (saved) {
+        setPriceRecords(function (prev) {
+          return asArray(prev).concat([saved]);
+        });
+        resetPriceForm();
+        return hydrateDashboard();
+      }).catch(function (err) {
+        setError(err.message || "価格記録の追加に失敗しました");
+      }).finally(function () {
+        setSaving(false);
+      });
+    }
+    function deletePriceRecord(id) {
+      setSaving(true);
+      setError("");
+      apiDelete("/api/price-records/" + id).then(function () {
+        return hydrateDashboard();
+      }).catch(function (err) {
+        setError(err.message || "価格記録の削除に失敗しました");
+      }).finally(function () {
+        setSaving(false);
+      });
+    }
+    function saveMenuItem() {
+      if (!menuForm.name.trim()) {
+        setError("メニュー名を入力してください");
+        return;
+      }
+      setSaving(true);
+      setError("");
+      var payload = {
+        name: menuForm.name.trim(),
+        selling_price: Number(menuForm.selling_price || 0),
+        recipe_text: menuForm.recipe_text
+      };
+      var req = menuForm.id ? apiSend("/api/menu-items/" + menuForm.id, "PUT", payload) : apiSend("/api/menu-items", "POST", payload);
+      req.then(function (saved) {
+        if (menuForm.id) {
+          setMenuItems(function (prev) {
+            return asArray(prev).map(function (item) {
+              return String(item.id) === String(saved.id) ? saved : item;
+            });
+          });
+        } else {
+          setMenuItems(function (prev) {
+            return asArray(prev).concat([saved]);
+          });
+        }
+        resetMenuForm();
+        return hydrateDashboard();
+      }).catch(function (err) {
+        setError(err.message || "メニューの保存に失敗しました");
+      }).finally(function () {
+        setSaving(false);
+      });
+    }
+    function editMenuItem(item) {
+      setMenuForm({
+        id: item.id,
+        name: item.name || "",
+        selling_price: String(item.selling_price || ""),
+        recipe_text: item.recipe_text || ""
+      });
+      setActiveTab("menus");
+    }
+    function deleteMenuItem(id) {
+      setSaving(true);
+      setError("");
+      apiDelete("/api/menu-items/" + id).then(function () {
+        resetMenuForm();
+        return hydrateDashboard();
+      }).catch(function (err) {
+        setError(err.message || "メニューの削除に失敗しました");
+      }).finally(function () {
+        setSaving(false);
+      });
+    }
+    var topMenus = useMemo(function () {
+      return asArray(menuAnalysis).slice().sort(function (a, b) {
+        return b.cost_rate - a.cost_rate;
+      }).slice(0, 5);
+    }, [menuAnalysis]);
+    var recentPriceRecords = useMemo(function () {
+      return asArray(priceRecords).slice().sort(function (a, b) {
+        return String(b.recorded_at).localeCompare(String(a.recorded_at));
+      }).slice(0, 8);
+    }, [priceRecords]);
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-slate-50 text-slate-900"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-7xl mx-auto p-4 md:p-6"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-6"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("h1", {
+      className: "text-2xl font-bold"
+    }, "\uD83D\uDCCA \u5024\u4E0A\u3052\u5224\u65AD\u3084\u4ED5\u5165\u308C\u898B\u76F4\u3057\u306B\u4F7F\u3048\u308B\u539F\u4FA1\u5206\u6790"), /*#__PURE__*/React.createElement("p", {
+      className: "text-sm text-slate-500 mt-1"
+    }, "\u539F\u6599\u4FA1\u683C\u306E\u5909\u52D5\u3001\u30E1\u30CB\u30E5\u30FC\u539F\u4FA1\u7387\u3001\u5024\u4E0A\u3052\u691C\u8A0E\u30E9\u30A4\u30F3\u3092\u307E\u3068\u3081\u3066\u78BA\u8A8D\u3067\u304D\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm hover:bg-slate-50",
+      onClick: hydrateDashboard,
+      disabled: loading || saving
+    }, loading ? "読込中..." : "🔄 更新"))), /*#__PURE__*/React.createElement("div", {
+      className: "flex flex-wrap gap-2 mb-6"
+    }, /*#__PURE__*/React.createElement(TabButton, {
+      active: activeTab === "dashboard",
+      onClick: function () {
+        setActiveTab("dashboard");
+      }
+    }, "\uD83D\uDCC8 \u30C0\u30C3\u30B7\u30E5\u30DC\u30FC\u30C9"), /*#__PURE__*/React.createElement(TabButton, {
+      active: activeTab === "ingredients",
+      onClick: function () {
+        setActiveTab("ingredients");
+      }
+    }, "\uD83E\uDD55 \u539F\u6599\u7BA1\u7406"), /*#__PURE__*/React.createElement(TabButton, {
+      active: activeTab === "prices",
+      onClick: function () {
+        setActiveTab("prices");
+      }
+    }, "\uD83D\uDCB4 \u4FA1\u683C\u5C65\u6B74"), /*#__PURE__*/React.createElement(TabButton, {
+      active: activeTab === "menus",
+      onClick: function () {
+        setActiveTab("menus");
+      }
+    }, "\uD83C\uDF7D\uFE0F \u30E1\u30CB\u30E5\u30FC\u5206\u6790")), error && /*#__PURE__*/React.createElement("div", {
+      className: "mb-4 border border-rose-200 bg-rose-50 text-rose-700 rounded-xl px-4 py-3 text-sm"
+    }, "\u274C ", error), loading ? /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 gap-4"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\u8AAD\u307F\u8FBC\u307F\u4E2D",
+      helper: "API \u304B\u3089\u6700\u65B0\u30C7\u30FC\u30BF\u3092\u53D6\u5F97\u3057\u3066\u3044\u307E\u3059"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-sm text-slate-500"
+    }, "\u3057\u3070\u3089\u304F\u304A\u5F85\u3061\u304F\u3060\u3055\u3044..."))) : /*#__PURE__*/React.createElement("div", null, activeTab === "dashboard" && /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 gap-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4"
+    }, /*#__PURE__*/React.createElement(MetricCard, {
+      label: "\u767B\u9332\u539F\u6599\u6570",
+      value: dashboardStats.ingredient_count + "件",
+      sub: "\u4ED5\u5165\u308C\u5148\u30FB\u30AB\u30C6\u30B4\u30EA\u3092\u7BA1\u7406"
+    }), /*#__PURE__*/React.createElement(MetricCard, {
+      label: "\u4FA1\u683C\u8A18\u9332\u6570",
+      value: dashboardStats.price_record_count + "件",
+      sub: "\u6642\u7CFB\u5217\u306E\u4FA1\u683C\u63A8\u79FB"
+    }), /*#__PURE__*/React.createElement(MetricCard, {
+      label: "\u30E1\u30CB\u30E5\u30FC\u6570",
+      value: dashboardStats.menu_item_count + "件",
+      sub: "\u8CA9\u58F2\u4FA1\u683C\u3068\u539F\u4FA1\u7387\u3092\u78BA\u8A8D"
+    }), /*#__PURE__*/React.createElement(MetricCard, {
+      label: "\u9AD8\u30EA\u30B9\u30AF\u30E1\u30CB\u30E5\u30FC",
+      value: dashboardStats.high_risk_menu_count + "件",
+      sub: "\u539F\u4FA1\u738735%\u4EE5\u4E0A\u307E\u305F\u306F\u4FA1\u683C\u672A\u8A2D\u5B9A"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 xl:grid-cols-3 gap-4"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDCCC \u5224\u65AD\u306E\u76EE\u5B89",
+      helper: "\u30C0\u30C3\u30B7\u30E5\u30DC\u30FC\u30C9\u3067\u6BCE\u56DE\u78BA\u8A8D\u3057\u305F\u3044\u4E3B\u8981\u6307\u6A19"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 sm:grid-cols-3 gap-3"
+    }, /*#__PURE__*/React.createElement(MiniValue, {
+      label: "\u5E73\u5747\u539F\u4FA1\u7387",
+      value: dashboardStats.avg_cost_rate.toFixed(1) + "%"
+    }), /*#__PURE__*/React.createElement(MiniValue, {
+      label: "\u4FA1\u683C\u5909\u52D5\u306E\u3042\u308B\u539F\u6599",
+      value: dashboardStats.recent_price_change_count + "件"
+    }), /*#__PURE__*/React.createElement(MiniValue, {
+      label: "\u5024\u4E0A\u3052\u691C\u8A0E\u5BFE\u8C61",
+      value: asArray(topMenus).filter(function (item) {
+        return item.cost_rate >= 30;
+      }).length + "件"
+    }))), /*#__PURE__*/React.createElement(Panel, {
+      title: "\u26A0\uFE0F \u512A\u5148\u78BA\u8A8D\u30E1\u30CB\u30E5\u30FC",
+      helper: "\u539F\u4FA1\u7387\u304C\u9AD8\u3044\u9806\u306B\u8868\u793A"
+    }, asArray(topMenus).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u30E1\u30CB\u30E5\u30FC\u5206\u6790\u30C7\u30FC\u30BF\u304C\u307E\u3060\u3042\u308A\u307E\u305B\u3093"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, asArray(topMenus).map(function (item) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: item.id,
+        className: "border border-slate-200 rounded-xl p-3"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-start justify-between gap-3"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold"
+      }, item.name), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500 mt-1"
+      }, "\u539F\u4FA1 ", formatCurrency(item.total_cost), " / \u58F2\u4FA1 ", formatCurrency(item.selling_price))), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs px-2 py-1 rounded-full border " + getStatusBadge(item.status)
+      }, getStatusLabel(item.status))), /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-3 gap-2 mt-3"
+      }, /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u539F\u4FA1\u7387",
+        value: item.cost_rate.toFixed(1) + "%"
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u7C97\u5229",
+        value: formatCurrency(item.gross_profit)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u63A8\u5968\u58F2\u4FA1",
+        value: formatCurrency(item.recommended_price)
+      })));
+    }))), /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDD52 \u6700\u65B0\u4FA1\u683C\u8A18\u9332",
+      helper: "\u6700\u8FD1\u8FFD\u52A0\u3055\u308C\u305F\u4FA1\u683C\u5C65\u6B74"
+    }, asArray(recentPriceRecords).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u4FA1\u683C\u8A18\u9332\u304C\u307E\u3060\u3042\u308A\u307E\u305B\u3093"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2"
+    }, asArray(recentPriceRecords).map(function (record) {
+      var ingredient = asArray(ingredients).find(function (ing) {
+        return String(ing.id) === String(record.ingredient_id);
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        key: record.id,
+        className: "flex items-center justify-between border border-slate-200 rounded-lg px-3 py-2"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-medium"
+      }, ingredient ? ingredient.name : "不明な原料"), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500"
+      }, record.recorded_at)), /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold"
+      }, formatCurrency(record.unit_price)));
+    })))), /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 xl:grid-cols-2 gap-4"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDCC9 \u539F\u6599\u4FA1\u683C\u306E\u63A8\u79FB",
+      helper: "\u767B\u9332\u9806\u3067\u306F\u306A\u304F\u8A18\u9332\u65E5\u9806\u3067\u8868\u793A"
+    }, asArray(priceTrendData).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u30C1\u30E3\u30FC\u30C8\u8868\u793A\u306B\u5FC5\u8981\u306A\u4FA1\u683C\u5C65\u6B74\u304C\u3042\u308A\u307E\u305B\u3093"
+    }) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%",
+        height: 300
+      }
+    }, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(LineChart, {
+      data: asArray(priceTrendData)
+    }, /*#__PURE__*/React.createElement(CartesianGrid, {
+      strokeDasharray: "3 3",
+      stroke: "#e2e8f0"
+    }), /*#__PURE__*/React.createElement(XAxis, {
+      dataKey: "recorded_at",
+      tick: {
+        fontSize: 12
+      }
+    }), /*#__PURE__*/React.createElement(YAxis, {
+      tick: {
+        fontSize: 12
+      }
+    }), /*#__PURE__*/React.createElement(Tooltip, null), /*#__PURE__*/React.createElement(Legend, null), /*#__PURE__*/React.createElement(Line, {
+      type: "monotone",
+      dataKey: "unit_price",
+      stroke: "#0f172a",
+      strokeWidth: 2,
+      name: "\u5358\u4FA1",
+      dot: false
+    }))))), /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDCCA \u30E1\u30CB\u30E5\u30FC\u539F\u4FA1\u7387",
+      helper: "\u5024\u4E0A\u3052\u5224\u65AD\u304C\u5FC5\u8981\u306A\u9806\u306B\u78BA\u8A8D"
+    }, asArray(menuAnalysis).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u30E1\u30CB\u30E5\u30FC\u3092\u767B\u9332\u3059\u308B\u3068\u539F\u4FA1\u7387\u3092\u8868\u793A\u3067\u304D\u307E\u3059"
+    }) : /*#__PURE__*/React.createElement("div", {
+      style: {
+        width: "100%",
+        height: 300
+      }
+    }, /*#__PURE__*/React.createElement(ResponsiveContainer, null, /*#__PURE__*/React.createElement(BarChart, {
+      data: asArray(menuAnalysis)
+    }, /*#__PURE__*/React.createElement(CartesianGrid, {
+      strokeDasharray: "3 3",
+      stroke: "#e2e8f0"
+    }), /*#__PURE__*/React.createElement(XAxis, {
+      dataKey: "name",
+      tick: {
+        fontSize: 12
+      }
+    }), /*#__PURE__*/React.createElement(YAxis, {
+      tick: {
+        fontSize: 12
+      }
+    }), /*#__PURE__*/React.createElement(Tooltip, null), /*#__PURE__*/React.createElement(Legend, null), /*#__PURE__*/React.createElement(Bar, {
+      dataKey: "cost_rate",
+      fill: "#334155",
+      name: "\u539F\u4FA1\u7387(%)",
+      radius: [6, 6, 0, 0]
+    }))))))), activeTab === "ingredients" && /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 xl:grid-cols-3 gap-4"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83E\uDD55 \u539F\u6599\u3092\u767B\u9332\u30FB\u66F4\u65B0",
+      helper: "\u4ED5\u5165\u308C\u898B\u76F4\u3057\u306E\u8D77\u70B9\u306B\u306A\u308B\u539F\u6599\u30DE\u30B9\u30BF"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u539F\u6599\u540D",
+      value: ingredientForm.name,
+      onChange: function (value) {
+        setIngredientForm(function (prev) {
+          return {
+            id: prev.id,
+            name: value,
+            category: prev.category,
+            unit: prev.unit,
+            supplier: prev.supplier
+          };
+        });
+      },
+      placeholder: "\u4F8B: \u7389\u306D\u304E"
+    }), /*#__PURE__*/React.createElement(FormSelect, {
+      label: "\u30AB\u30C6\u30B4\u30EA",
+      value: ingredientForm.category,
+      onChange: function (value) {
+        setIngredientForm(function (prev) {
+          return {
+            id: prev.id,
+            name: prev.name,
+            category: value,
+            unit: prev.unit,
+            supplier: prev.supplier
+          };
+        });
+      },
+      options: ["野菜", "肉", "魚介", "調味料", "穀物", "乳製品", "その他"]
+    }), /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u5358\u4F4D",
+      value: ingredientForm.unit,
+      onChange: function (value) {
+        setIngredientForm(function (prev) {
+          return {
+            id: prev.id,
+            name: prev.name,
+            category: prev.category,
+            unit: value,
+            supplier: prev.supplier
+          };
+        });
+      },
+      placeholder: "kg / g / \u672C / \u500B"
+    }), /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u4ED5\u5165\u308C\u5148",
+      value: ingredientForm.supplier,
+      onChange: function (value) {
+        setIngredientForm(function (prev) {
+          return {
+            id: prev.id,
+            name: prev.name,
+            category: prev.category,
+            unit: prev.unit,
+            supplier: value
+          };
+        });
+      },
+      placeholder: "\u4F8B: \u25CB\u25CB\u9752\u679C"
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2 pt-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg bg-slate-900 text-white text-sm",
+      onClick: saveIngredient,
+      disabled: saving
+    }, saving ? "保存中..." : ingredientForm.id ? "更新する" : "登録する"), /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm",
+      onClick: resetIngredientForm,
+      disabled: saving
+    }, "\u30AF\u30EA\u30A2")))), /*#__PURE__*/React.createElement("div", {
+      className: "xl:col-span-2"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDCCB \u539F\u6599\u4E00\u89A7",
+      helper: "\u6700\u65B0\u5358\u4FA1\u30FB\u5909\u52D5\u7387\u3092\u898B\u306A\u304C\u3089\u4ED5\u5165\u308C\u898B\u76F4\u3057\u5019\u88DC\u3092\u63A2\u305B\u307E\u3059"
+    }, asArray(ingredientStats).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u539F\u6599\u304C\u307E\u3060\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u305B\u3093"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, asArray(ingredientStats).map(function (item) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: item.id,
+        className: "border border-slate-200 rounded-xl p-4"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-col md:flex-row md:items-start md:justify-between gap-3"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold"
+      }, item.name), /*#__PURE__*/React.createElement("span", {
+        className: "text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200"
+      }, item.category)), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500 mt-1"
+      }, "\u5358\u4F4D: ", item.unit || "-", " / \u4ED5\u5165\u308C\u5148: ", item.supplier || "未設定")), /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        className: "px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm",
+        onClick: function () {
+          editIngredient(item);
+        }
+      }, "\u7DE8\u96C6"), /*#__PURE__*/React.createElement("button", {
+        className: "px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-sm",
+        onClick: function () {
+          deleteIngredient(item.id);
+        }
+      }, "\u524A\u9664"))), /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-2 md:grid-cols-5 gap-3 mt-4"
+      }, /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u6700\u65B0\u5358\u4FA1",
+        value: formatCurrency(item.latest_unit_price)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u524D\u56DE\u5358\u4FA1",
+        value: formatCurrency(item.previous_unit_price)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u5909\u52D5\u7387",
+        value: formatSignedPercent(item.change_rate)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u6700\u5B89\u5024",
+        value: formatCurrency(item.min_price)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u6700\u9AD8\u5024",
+        value: formatCurrency(item.max_price)
+      })));
+    }))))), activeTab === "prices" && /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 xl:grid-cols-3 gap-4"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDCB4 \u4FA1\u683C\u8A18\u9332\u3092\u8FFD\u52A0",
+      helper: "\u539F\u6599\u3054\u3068\u306E\u4FA1\u683C\u63A8\u79FB\u3092\u84C4\u7A4D\u3057\u307E\u3059"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, "\u5BFE\u8C61\u539F\u6599"), /*#__PURE__*/React.createElement("select", {
+      value: priceForm.ingredient_id,
+      onChange: function (e) {
+        setPriceForm(function (prev) {
+          return {
+            ingredient_id: e.target.value,
+            recorded_at: prev.recorded_at,
+            unit_price: prev.unit_price,
+            quantity_basis: prev.quantity_basis
+          };
+        });
+      },
+      className: "w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white"
+    }, /*#__PURE__*/React.createElement("option", {
+      value: ""
+    }, "\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044"), asArray(ingredients).map(function (item) {
+      return /*#__PURE__*/React.createElement("option", {
+        key: item.id,
+        value: item.id
+      }, item.name);
+    }))), /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u8A18\u9332\u65E5",
+      type: "date",
+      value: priceForm.recorded_at,
+      onChange: function (value) {
+        setPriceForm(function (prev) {
+          return {
+            ingredient_id: prev.ingredient_id,
+            recorded_at: value,
+            unit_price: prev.unit_price,
+            quantity_basis: prev.quantity_basis
+          };
+        });
+      }
+    }), /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u5358\u4FA1",
+      type: "number",
+      value: priceForm.unit_price,
+      onChange: function (value) {
+        setPriceForm(function (prev) {
+          return {
+            ingredient_id: prev.ingredient_id,
+            recorded_at: prev.recorded_at,
+            unit_price: value,
+            quantity_basis: prev.quantity_basis
+          };
+        });
+      },
+      placeholder: "\u4F8B: 480"
+    }), /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u6570\u91CF\u57FA\u6E96",
+      type: "number",
+      value: priceForm.quantity_basis,
+      onChange: function (value) {
+        setPriceForm(function (prev) {
+          return {
+            ingredient_id: prev.ingredient_id,
+            recorded_at: prev.recorded_at,
+            unit_price: prev.unit_price,
+            quantity_basis: value
+          };
+        });
+      },
+      placeholder: "\u4F8B: 1"
+    }), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2 pt-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg bg-slate-900 text-white text-sm",
+      onClick: addPriceRecord,
+      disabled: saving
+    }, saving ? "保存中..." : "追加する"), /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm",
+      onClick: resetPriceForm,
+      disabled: saving
+    }, "\u30AF\u30EA\u30A2")))), /*#__PURE__*/React.createElement("div", {
+      className: "xl:col-span-2"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83E\uDDFE \u4FA1\u683C\u5C65\u6B74\u4E00\u89A7",
+      helper: "\u8A18\u9332\u65E5\u9806\u306B\u4E26\u3079\u3066\u5909\u52D5\u3092\u8FFD\u8DE1"
+    }, asArray(priceRecords).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u4FA1\u683C\u5C65\u6B74\u304C\u307E\u3060\u3042\u308A\u307E\u305B\u3093"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-2"
+    }, asArray(priceRecords).slice().sort(function (a, b) {
+      return String(b.recorded_at).localeCompare(String(a.recorded_at));
+    }).map(function (record) {
+      var ingredient = asArray(ingredients).find(function (ing) {
+        return String(ing.id) === String(record.ingredient_id);
+      });
+      return /*#__PURE__*/React.createElement("div", {
+        key: record.id,
+        className: "border border-slate-200 rounded-xl p-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold"
+      }, ingredient ? ingredient.name : "不明な原料"), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500 mt-1"
+      }, record.recorded_at, " / \u6570\u91CF\u57FA\u6E96 ", record.quantity_basis)), /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-3"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold"
+      }, formatCurrency(record.unit_price)), /*#__PURE__*/React.createElement("button", {
+        className: "px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-sm",
+        onClick: function () {
+          deletePriceRecord(record.id);
+        }
+      }, "\u524A\u9664")));
+    }))))), activeTab === "menus" && /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 xl:grid-cols-3 gap-4"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83C\uDF7D\uFE0F \u30E1\u30CB\u30E5\u30FC\u3092\u767B\u9332\u30FB\u66F4\u65B0",
+      helper: "recipe_text \u306F\u300Cingredient_id,quantity\u300D\u30921\u884C\u305A\u3064\u5165\u529B"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u30E1\u30CB\u30E5\u30FC\u540D",
+      value: menuForm.name,
+      onChange: function (value) {
+        setMenuForm(function (prev) {
+          return {
+            id: prev.id,
+            name: value,
+            selling_price: prev.selling_price,
+            recipe_text: prev.recipe_text
+          };
+        });
+      },
+      placeholder: "\u4F8B: \u725B\u4E3C"
+    }), /*#__PURE__*/React.createElement(FormInput, {
+      label: "\u8CA9\u58F2\u4FA1\u683C",
+      type: "number",
+      value: menuForm.selling_price,
+      onChange: function (value) {
+        setMenuForm(function (prev) {
+          return {
+            id: prev.id,
+            name: prev.name,
+            selling_price: value,
+            recipe_text: prev.recipe_text
+          };
+        });
+      },
+      placeholder: "\u4F8B: 780"
+    }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, "recipe_text"), /*#__PURE__*/React.createElement("textarea", {
+      value: menuForm.recipe_text,
+      onChange: function (e) {
+        setMenuForm(function (prev) {
+          return {
+            id: prev.id,
+            name: prev.name,
+            selling_price: prev.selling_price,
+            recipe_text: e.target.value
+          };
+        });
+      },
+      placeholder: "例:\n1,0.15\n2,0.08",
+      className: "w-full min-h-[160px] border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white"
+    }), /*#__PURE__*/React.createElement("p", {
+      className: "text-xs text-slate-400 mt-1"
+    }, "\u539F\u6599ID\u3068\u4F7F\u7528\u91CF\u3092\u30AB\u30F3\u30DE\u533A\u5207\u308A\u3067\u5165\u529B\u3057\u307E\u3059\u3002")), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-2 pt-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg bg-slate-900 text-white text-sm",
+      onClick: saveMenuItem,
+      disabled: saving
+    }, saving ? "保存中..." : menuForm.id ? "更新する" : "登録する"), /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-2 rounded-lg border border-slate-200 bg-white text-sm",
+      onClick: resetMenuForm,
+      disabled: saving
+    }, "\u30AF\u30EA\u30A2")))), /*#__PURE__*/React.createElement("div", {
+      className: "xl:col-span-2"
+    }, /*#__PURE__*/React.createElement(Panel, {
+      title: "\uD83D\uDCDA \u30E1\u30CB\u30E5\u30FC\u539F\u4FA1\u5206\u6790\u4E00\u89A7",
+      helper: "\u5024\u4E0A\u3052\u5224\u65AD\u3084\u30EC\u30B7\u30D4\u898B\u76F4\u3057\u306E\u512A\u5148\u9806\u4F4D\u4ED8\u3051\u306B\u5229\u7528"
+    }, asArray(menuAnalysis).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+      text: "\u30E1\u30CB\u30E5\u30FC\u304C\u307E\u3060\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u305B\u3093"
+    }) : /*#__PURE__*/React.createElement("div", {
+      className: "space-y-3"
+    }, asArray(menuAnalysis).slice().sort(function (a, b) {
+      return b.cost_rate - a.cost_rate;
+    }).map(function (item) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: item.id,
+        className: "border border-slate-200 rounded-xl p-4"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex flex-col md:flex-row md:items-start md:justify-between gap-3"
+      }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-2"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-semibold"
+      }, item.name), /*#__PURE__*/React.createElement("span", {
+        className: "text-xs px-2 py-1 rounded-full border " + getStatusBadge(item.status)
+      }, getStatusLabel(item.status))), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500 mt-1"
+      }, "\u539F\u4FA1\u672A\u53D6\u5F97\u98DF\u6750: ", item.missing_count, "\u4EF6")), /*#__PURE__*/React.createElement("div", {
+        className: "flex gap-2"
+      }, /*#__PURE__*/React.createElement("button", {
+        className: "px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-sm",
+        onClick: function () {
+          editMenuItem(item);
+        }
+      }, "\u7DE8\u96C6"), /*#__PURE__*/React.createElement("button", {
+        className: "px-3 py-1.5 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-sm",
+        onClick: function () {
+          deleteMenuItem(item.id);
+        }
+      }, "\u524A\u9664"))), /*#__PURE__*/React.createElement("div", {
+        className: "grid grid-cols-2 md:grid-cols-4 gap-3 mt-4"
+      }, /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u58F2\u4FA1",
+        value: formatCurrency(item.selling_price)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u63A8\u5B9A\u539F\u4FA1",
+        value: formatCurrency(item.total_cost)
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u539F\u4FA1\u7387",
+        value: item.cost_rate.toFixed(1) + "%"
+      }), /*#__PURE__*/React.createElement(MiniValue, {
+        label: "\u63A8\u5968\u58F2\u4FA1",
+        value: formatCurrency(item.recommended_price)
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "mt-4"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-500 mb-2"
+      }, "\u30EC\u30B7\u30D4\u660E\u7D30"), asArray(item.recipe_details).length === 0 ? /*#__PURE__*/React.createElement(EmptyState, {
+        text: "recipe_text \u304C\u672A\u8A2D\u5B9A\u3067\u3059"
+      }) : /*#__PURE__*/React.createElement("div", {
+        className: "space-y-2"
+      }, asArray(item.recipe_details).map(function (detail, index) {
+        return /*#__PURE__*/React.createElement("div", {
+          key: item.id + "-" + index,
+          className: "flex items-center justify-between bg-slate-50 border border-slate-100 rounded-lg px-3 py-2"
+        }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+          className: "text-sm"
+        }, detail.ingredient_name), /*#__PURE__*/React.createElement("div", {
+          className: "text-xs text-slate-500"
+        }, "\u4F7F\u7528\u91CF ", detail.quantity, detail.unit ? " " + detail.unit : "")), /*#__PURE__*/React.createElement("div", {
+          className: "text-right"
+        }, /*#__PURE__*/React.createElement("div", {
+          className: "text-sm font-medium"
+        }, formatCurrency(detail.line_cost)), /*#__PURE__*/React.createElement("div", {
+          className: "text-xs " + (detail.has_price ? "text-emerald-600" : "text-rose-600")
+        }, detail.has_price ? "価格取得済み" : "価格未登録")));
+      }))));
+    }))))))));
+  }
+  function TabButton(props) {
+    return /*#__PURE__*/React.createElement("button", {
+      onClick: props.onClick,
+      className: "px-4 py-2 rounded-full text-sm border transition " + (props.active ? "bg-slate-900 text-white border-slate-900" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50")
+    }, props.children);
+  }
+  function MetricCard(props) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "bg-white border border-slate-200 rounded-2xl p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-500"
+    }, props.label), /*#__PURE__*/React.createElement("div", {
+      className: "text-2xl font-bold mt-1"
+    }, props.value), /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-400 mt-1"
+    }, props.sub));
+  }
+  function Panel(props) {
+    return /*#__PURE__*/React.createElement("section", {
+      className: "bg-white border border-slate-200 rounded-2xl p-4 md:p-5"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "mb-4"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "text-sm font-semibold"
+    }, props.title), props.helper && /*#__PURE__*/React.createElement("p", {
+      className: "text-xs text-slate-500 mt-1"
+    }, props.helper)), /*#__PURE__*/React.createElement("div", null, props.children));
+  }
+  function FormInput(props) {
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, props.label), /*#__PURE__*/React.createElement("input", {
+      type: props.type || "text",
+      value: props.value,
+      onChange: function (e) {
+        props.onChange(e.target.value);
+      },
+      placeholder: props.placeholder || "",
+      className: "w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white"
+    }));
+  }
+  function FormSelect(props) {
+    var labels = props.optionLabels || {};
+    return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, props.label), /*#__PURE__*/React.createElement("select", {
+      value: props.value,
+      onChange: function (e) {
+        props.onChange(e.target.value);
+      },
+      className: "w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white"
+    }, /*#__PURE__*/React.createElement("option", {
+      value: ""
+    }, "\u9078\u629E\u3057\u3066\u304F\u3060\u3055\u3044"), asArray(props.options).map(function (option) {
+      return /*#__PURE__*/React.createElement("option", {
+        key: option,
+        value: option
+      }, labels[option] || option);
+    })));
+  }
+  function MiniValue(props) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "bg-slate-50 rounded-lg px-3 py-2 border border-slate-100"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-500"
+    }, props.label), /*#__PURE__*/React.createElement("div", {
+      className: "text-sm font-semibold mt-1"
+    }, props.value));
+  }
+  function EmptyState(props) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "border border-dashed border-slate-200 rounded-xl p-6 text-center text-sm text-slate-400 bg-slate-50"
+    }, props.text);
+  }
+  return App;
+}
+  var App = __renderApp(API_BASE);
+  ReactDOM.createRoot(document.getElementById('root'))
+    .render(React.createElement(App));
+} catch(e) {
+  reportError('RenderError', e.message, e.stack || '');
+}
+</script>
+</body>
+</html>

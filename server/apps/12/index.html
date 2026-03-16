@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./react.js"></script>
+  <script src="./react-is.js"></script>
+  <script src="./react-dom.js"></script>
+  <script src="./prop-types.js"></script>
+  <script src="./recharts.js"></script>
+  <script>
+(function () {
+  if (!window.React) return;
+  var React = window.React;
+  var Recharts = window.Recharts || {};
+
+  window.React = React;
+  window.ReactDOM = window.ReactDOM;
+  window.Fragment = React.Fragment;
+
+  window.useState = React.useState;
+  window.useEffect = React.useEffect;
+  window.useMemo = React.useMemo;
+  window.useCallback = React.useCallback;
+  window.useRef = React.useRef;
+  window.useReducer = React.useReducer;
+
+  var chartGlobals = {
+    BarChart: Recharts.BarChart,
+    Bar: Recharts.Bar,
+    LineChart: Recharts.LineChart,
+    Line: Recharts.Line,
+    AreaChart: Recharts.AreaChart,
+    Area: Recharts.Area,
+    PieChart: Recharts.PieChart,
+    Pie: Recharts.Pie,
+    Cell: Recharts.Cell,
+    XAxis: Recharts.XAxis,
+    YAxis: Recharts.YAxis,
+    CartesianGrid: Recharts.CartesianGrid,
+    Tooltip: Recharts.Tooltip,
+    Legend: Recharts.Legend,
+    ResponsiveContainer: Recharts.ResponsiveContainer,
+    RadarChart: Recharts.RadarChart,
+    Radar: Recharts.Radar,
+    PolarGrid: Recharts.PolarGrid,
+    PolarAngleAxis: Recharts.PolarAngleAxis,
+    PolarRadiusAxis: Recharts.PolarRadiusAxis,
+    ComposedChart: Recharts.ComposedChart,
+    ScatterChart: Recharts.ScatterChart,
+    Scatter: Recharts.Scatter,
+    Treemap: Recharts.Treemap,
+    RadialBarChart: Recharts.RadialBarChart,
+    RadialBar: Recharts.RadialBar,
+    FunnelChart: Recharts.FunnelChart,
+    Funnel: Recharts.Funnel,
+    Sankey: Recharts.Sankey,
+    ReferenceArea: Recharts.ReferenceArea,
+    ReferenceLine: Recharts.ReferenceLine,
+    ReferenceDot: Recharts.ReferenceDot,
+    Brush: Recharts.Brush,
+    Label: Recharts.Label,
+    LabelList: Recharts.LabelList
+  };
+  Object.keys(chartGlobals).forEach(function (key) {
+    if (chartGlobals[key]) window[key] = chartGlobals[key];
+  });
+
+  window.asArray = window.asArray || function (v) {
+    return Array.isArray(v) ? v : [];
+  };
+  window.classNames = window.classNames || function () {
+    return Array.prototype.filter.call(arguments, Boolean).join(' ');
+  };
+
+  var iconEmojiMap = {
+    Search: '🔍', Plus: '➕', Minus: '➖', X: '✕', Check: '✓',
+    ChevronDown: '▾', ChevronUp: '▴', ChevronLeft: '◂', ChevronRight: '▸',
+    ArrowLeft: '←', ArrowRight: '→', Calendar: '📅', Clock: '🕒', Bell: '🔔',
+    Settings: '⚙️', User: '👤', Users: '👥', Home: '🏠', Menu: '☰', Filter: '🧪',
+    Download: '⬇️', Upload: '⬆️', Trash2: '🗑️', Edit: '✏️', Eye: '👁️',
+    EyeOff: '🙈', Copy: '📄', Share: '🔗', ExternalLink: '↗️', Star: '⭐',
+    Heart: '❤️', AlertCircle: '⚠️', Info: 'ℹ️', HelpCircle: '❔',
+    ShoppingCart: '🛒', CreditCard: '💳', DollarSign: '💲', TrendingUp: '📈',
+    TrendingDown: '📉', BarChart3: '📊', PieChart: '🥧', FileText: '📄',
+    Printer: '🖨️', QrCode: '▦', Utensils: '🍽️', Coffee: '☕', Wine: '🍷',
+    Store: '🏪', Package: '📦', Phone: '📞', Mail: '✉️', MapPin: '📍',
+    Navigation: '🧭', Sun: '☀️', Moon: '🌙', Loader2: '⏳', RefreshCw: '🔄',
+    MoreHorizontal: '⋯', MoreVertical: '⋮', GripVertical: '⋮', LogOut: '↩️',
+    Save: '💾', Send: '📨'
+  };
+
+  window.Icon = window.Icon || function Icon(props) {
+    var name = props && props.name ? props.name : 'Icon';
+    var size = props && props.size ? props.size : 18;
+    var className = props && props.className ? props.className : '';
+    var style = props && props.style ? props.style : {};
+    var title = props && props.title ? props.title : name;
+    var rest = Object.assign({}, props || {});
+    delete rest.name;
+    delete rest.size;
+    delete rest.className;
+    delete rest.style;
+    delete rest.title;
+    return React.createElement('span', Object.assign({}, rest, {
+      title: title,
+      className: className,
+      style: Object.assign({
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: size,
+        height: size,
+        lineHeight: 1,
+        fontSize: Math.max(12, Math.round(size * 0.9))
+      }, style)
+    }), iconEmojiMap[name] || '◻︎');
+  };
+
+  ['Search','Plus','Minus','X','Check','ChevronDown','ChevronUp','ChevronLeft','ChevronRight','ArrowLeft','ArrowRight','Calendar','Clock','Bell','Settings','User','Users','Home','Menu','Filter','Download','Upload','Trash2','Edit','Eye','EyeOff','Copy','Share','ExternalLink','Star','Heart','AlertCircle','Info','HelpCircle','ShoppingCart','CreditCard','DollarSign','TrendingUp','TrendingDown','BarChart3','PieChart','FileText','Printer','QrCode','Utensils','Coffee','Wine','Store','Package','Phone','Mail','MapPin','Navigation','Sun','Moon','Loader2','RefreshCw','MoreHorizontal','MoreVertical','GripVertical','LogOut','Save','Send'].forEach(function (name) {
+    window[name + 'Icon'] = function ShortcutIcon(props) {
+      return React.createElement(window.Icon, Object.assign({ name: name }, props || {}));
+    };
+  });
+
+  window.Dialog = window.Dialog || function Dialog(props) {
+    var open = !!(props && props.open);
+    if (!open) return null;
+    var onClose = props && props.onClose;
+    return React.createElement('div', {
+      className: 'fixed inset-0 z-50 flex items-center justify-center',
+      onClick: function (e) { if (e.target === e.currentTarget && onClose) onClose(); }
+    },
+      React.createElement('div', { className: 'fixed inset-0 bg-black/40' }),
+      React.createElement('div', { className: 'relative z-10 w-full max-w-lg mx-4 max-h-[85vh] overflow-auto rounded-xl bg-white p-6 shadow-2xl' },
+        props && props.title ? React.createElement('h2', { className: 'text-lg font-semibold mb-4' }, props.title) : null,
+        React.createElement('button', { className: 'absolute right-3 top-3 text-xl leading-none text-gray-400 hover:text-gray-600', onClick: onClose }, '×'),
+        props && props.children
+      )
+    );
+  };
+
+  window.Tabs = window.Tabs || function Tabs(props) {
+    var tabs = window.asArray(props && props.tabs);
+    var active = props && props.active;
+    var onChange = props && props.onChange;
+    return React.createElement('div', { className: 'flex gap-1 border-b border-slate-200' },
+      tabs.map(function (tab) {
+        var isActive = tab.key === active;
+        return React.createElement('button', {
+          key: tab.key,
+          className: 'px-4 py-2 text-sm font-medium border-b-2 transition-colors ' + (isActive ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'),
+          onClick: function () { if (onChange) onChange(tab.key); }
+        }, tab.label);
+      })
+    );
+  };
+
+  window.Badge = window.Badge || function Badge(props) {
+    var colorMap = {
+      gray: 'bg-gray-100 text-gray-700', blue: 'bg-blue-100 text-blue-700', green: 'bg-green-100 text-green-700',
+      red: 'bg-red-100 text-red-700', yellow: 'bg-yellow-100 text-yellow-700', purple: 'bg-purple-100 text-purple-700'
+    };
+    var color = props && props.color ? props.color : 'gray';
+    return React.createElement('span', { className: 'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ' + (colorMap[color] || colorMap.gray) }, props && props.children);
+  };
+
+  window.Spinner = window.Spinner || function Spinner(props) {
+    var size = props && props.size ? props.size : 20;
+    var className = props && props.className ? props.className : '';
+    return React.createElement('svg', { className: 'animate-spin text-blue-600 ' + className, width: size, height: size, viewBox: '0 0 24 24', fill: 'none' },
+      React.createElement('circle', { cx: 12, cy: 12, r: 10, stroke: 'currentColor', strokeWidth: 3, opacity: 0.25 }),
+      React.createElement('path', { d: 'M4 12a8 8 0 018-8', stroke: 'currentColor', strokeWidth: 3, strokeLinecap: 'round' })
+    );
+  };
+
+  window.EmptyState = window.EmptyState || function EmptyState(props) {
+    return React.createElement('div', { className: 'flex flex-col items-center justify-center py-12 text-gray-400' },
+      React.createElement('span', { className: 'mb-3 text-4xl' }, (props && props.icon) || '📭'),
+      React.createElement('p', { className: 'text-sm' }, (props && props.message) || 'データがありません')
+    );
+  };
+
+  window.Toggle = window.Toggle || function Toggle(props) {
+    var checked = !!(props && props.checked);
+    var onChange = props && props.onChange;
+    return React.createElement('label', { className: 'inline-flex cursor-pointer items-center gap-2' },
+      React.createElement('div', {
+        className: 'relative h-5 w-10 rounded-full transition-colors ' + (checked ? 'bg-blue-600' : 'bg-gray-300'),
+        onClick: function () { if (onChange) onChange(!checked); }
+      }, React.createElement('div', { className: 'absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ' + (checked ? 'translate-x-5' : 'translate-x-0.5') })),
+      props && props.label ? React.createElement('span', { className: 'text-sm text-gray-700' }, props.label) : null
+    );
+  };
+
+  window.DatePicker = window.DatePicker || function DatePicker(props) {
+    return React.createElement('input', {
+      type: 'date', value: (props && props.value) || '', min: props && props.min, max: props && props.max,
+      onChange: function (e) { if (props && props.onChange) props.onChange(e.target.value); },
+      className: 'border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + ((props && props.className) || '')
+    });
+  };
+
+  window.TimePicker = window.TimePicker || function TimePicker(props) {
+    return React.createElement('input', {
+      type: 'time', value: (props && props.value) || '',
+      onChange: function (e) { if (props && props.onChange) props.onChange(e.target.value); },
+      className: 'border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ' + ((props && props.className) || '')
+    });
+  };
+
+  window.DateRangePicker = window.DateRangePicker || function DateRangePicker(props) {
+    return React.createElement('div', { className: 'inline-flex items-center gap-2' },
+      React.createElement(window.DatePicker, { value: props && props.startDate, onChange: props && props.onStartChange, max: props && props.endDate }),
+      React.createElement('span', { className: 'text-sm text-gray-400' }, '〜'),
+      React.createElement(window.DatePicker, { value: props && props.endDate, onChange: props && props.onEndChange, min: props && props.startDate })
+    );
+  };
+})();</script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f8fafc}
+    #funfo-powered{display:none;height:28px;border-bottom:1px solid #e5e7eb;background:#fafafa;color:#52525b;font-size:12px;
+      align-items:center;justify-content:center;gap:6px}
+    #funfo-powered a{color:#18181b;text-decoration:none}
+    #funfo-powered a:hover{text-decoration:underline;color:#000}
+    #err{color:#ef4444;background:#1e1e1e;padding:16px;font-size:12px;white-space:pre-wrap;
+         font-family:monospace;margin:16px;border-radius:8px;display:none}
+  </style>
+</head>
+<body>
+<div id="funfo-powered">powered by
+  <span style="display:inline-flex;align-items:center;gap:4px;font-weight:600;color:#27272a;">
+    <span style="width:14px;height:14px;border-radius:4px;background:#18181b;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;">✦</span>
+    funfo AI
+  </span>
+  <a href="" target="_blank" rel="noopener noreferrer">公式サイト</a>
+</div>
+<div id="root"></div>
+<div id="err"></div>
+<script>
+// ── Error reporting to parent frame ──────────────────────────────────
+function reportError(type, message, detail) {
+  var entry = { type: type, message: message, detail: detail || '', time: new Date().toISOString(), url: location.href };
+  var fatal = ['CompileError','RenderError','RuntimeError','UnhandledRejection'].indexOf(type) >= 0;
+  // Show inline error panel only for fatal errors
+  var el = document.getElementById('err');
+  if (fatal && el) { el.style.display = 'block'; el.textContent = '\u274C ' + type + ': ' + message; }
+  // Send to parent (VibeCoding workspace)
+  try { window.parent.postMessage({ __funfoError: true, entry: entry }, '*'); } catch(_) {}
+}
+function postRouteChange() {
+  try {
+    window.parent.postMessage({
+      __funfoRouteChange: true,
+      path: location.pathname,
+      search: location.search || '',
+      hash: location.hash || '',
+      href: location.href,
+    }, '*');
+  } catch(_) {}
+}
+// Catch unhandled JS errors
+window.onerror = function(msg, src, line, col, err) {
+  reportError('RuntimeError', msg, err ? err.stack : ('line ' + line));
+  return false;
+};
+// Catch unhandled promise rejections
+window.addEventListener('unhandledrejection', function(e) {
+  var msg = e.reason instanceof Error ? e.reason.message : String(e.reason);
+  var detail = e.reason instanceof Error ? e.reason.stack : '';
+  reportError('UnhandledRejection', msg, detail);
+});
+// Intercept fetch to keep /api requests inside the current app base and capture API errors
+var _fetch = window.fetch;
+window.fetch = function(url, opts) {
+  var nextUrl = url;
+  if (typeof nextUrl === 'string' && APP_BASE) {
+    if (nextUrl.startsWith('/api/')) nextUrl = APP_BASE + nextUrl;
+    else if (nextUrl.startsWith('api/')) nextUrl = APP_BASE.replace(/\/$/, '/') + nextUrl;
+  }
+  return _fetch.call(this, nextUrl, opts).then(function(res) {
+    if (!res.ok) {
+      // Clone to read body without consuming it
+      res.clone().text().then(function(body) {
+        reportError('APIError', res.status + ' ' + res.statusText + ' — ' + nextUrl, body.slice(0, 300));
+      });
+    }
+    return res;
+  }).catch(function(err) {
+    reportError('NetworkError', 'Failed to fetch: ' + nextUrl, err.message);
+    throw err;
+  });
+};
+
+var API_BASE = "/app/nq6xi71j";
+if (!API_BASE) {
+  var _w = location.pathname.match(/^\/w\/(w_[a-z0-9]{12}(?:_preview)?)(?:\/|$)/);
+  if (_w) API_BASE = '/w/' + _w[1];
+  if (!API_BASE) {
+    var _m = location.pathname.match(/^\/app\/([a-z0-9]{8})(?:\/|$)/);
+    if (_m) API_BASE = '/app/' + _m[1];
+  }
+}
+var APP_BASE = API_BASE || '';
+function toAppRelativeUrl(target) {
+  if (!target) return target;
+  if (typeof target !== 'string') target = String(target);
+  if (!APP_BASE) return target;
+  if (/^(https?:|data:|blob:|mailto:|tel:|javascript:)/i.test(target)) return target;
+  if (target.startsWith(APP_BASE)) return target;
+  if (target.startsWith('#')) return location.pathname + target;
+  if (target.startsWith('/')) return APP_BASE + target;
+  return APP_BASE.replace(/\/$/, '/') + target.replace(/^\.\//, '');
+}
+(function patchClientRouting() {
+  if (!APP_BASE) return;
+  var _pushState = history.pushState.bind(history);
+  var _replaceState = history.replaceState.bind(history);
+  history.pushState = function(state, title, url) {
+    var next = typeof url === 'string' ? toAppRelativeUrl(url) : url;
+    var out = _pushState(state, title, next);
+    postRouteChange();
+    return out;
+  };
+  history.replaceState = function(state, title, url) {
+    var next = typeof url === 'string' ? toAppRelativeUrl(url) : url;
+    var out = _replaceState(state, title, next);
+    postRouteChange();
+    return out;
+  };
+  var _open = window.open ? window.open.bind(window) : null;
+  if (_open) {
+    window.open = function(url, target, features) {
+      return _open(typeof url === 'string' ? toAppRelativeUrl(url) : url, target, features);
+    };
+  }
+  window.addEventListener('popstate', postRouteChange);
+  window.addEventListener('hashchange', postRouteChange);
+  document.addEventListener('click', function(e) {
+    var el = e.target;
+    while (el && el.tagName !== 'A') el = el.parentElement;
+    if (!el) return;
+    var href = el.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    var next = toAppRelativeUrl(href);
+    if (next !== href) el.setAttribute('href', next);
+    setTimeout(postRouteChange, 0);
+  }, true);
+  setTimeout(postRouteChange, 0);
+})();
+if (window.self === window.top) {
+  var bar = document.getElementById('funfo-powered');
+  if (bar) bar.style.display = 'flex';
+}
+try {
+  function __renderApp(API_BASE) {
+  var React = window.React;
+  var ReactDOM = window.ReactDOM;
+  var Fragment = window.Fragment || React && React.Fragment;
+  var useState = window.useState || React.useState;
+  var useEffect = window.useEffect || React.useEffect;
+  var useMemo = window.useMemo || React.useMemo;
+  var useCallback = window.useCallback || React.useCallback;
+  var useRef = window.useRef || React.useRef;
+  var useReducer = window.useReducer || React.useReducer;
+  var BarChart = window.BarChart;
+  var Bar = window.Bar;
+  var LineChart = window.LineChart;
+  var Line = window.Line;
+  var AreaChart = window.AreaChart;
+  var Area = window.Area;
+  var PieChart = window.PieChart;
+  var Pie = window.Pie;
+  var Cell = window.Cell;
+  var RadarChart = window.RadarChart;
+  var Radar = window.Radar;
+  var PolarGrid = window.PolarGrid;
+  var PolarAngleAxis = window.PolarAngleAxis;
+  var PolarRadiusAxis = window.PolarRadiusAxis;
+  var ComposedChart = window.ComposedChart;
+  var ScatterChart = window.ScatterChart;
+  var Scatter = window.Scatter;
+  var Treemap = window.Treemap;
+  var RadialBarChart = window.RadialBarChart;
+  var RadialBar = window.RadialBar;
+  var FunnelChart = window.FunnelChart;
+  var Funnel = window.Funnel;
+  var Sankey = window.Sankey;
+  var ReferenceArea = window.ReferenceArea;
+  var ReferenceLine = window.ReferenceLine;
+  var ReferenceDot = window.ReferenceDot;
+  var Brush = window.Brush;
+  var Label = window.Label;
+  var LabelList = window.LabelList;
+  var XAxis = window.XAxis;
+  var YAxis = window.YAxis;
+  var CartesianGrid = window.CartesianGrid;
+  var Tooltip = window.Tooltip;
+  var Legend = window.Legend;
+  var ResponsiveContainer = window.ResponsiveContainer;
+  var Icon = window.Icon;
+  var Dialog = window.Dialog;
+  var Tabs = window.Tabs;
+  var Badge = window.Badge;
+  var Spinner = window.Spinner;
+  var EmptyState = window.EmptyState;
+  var Toggle = window.Toggle;
+  var DatePicker = window.DatePicker;
+  var TimePicker = window.TimePicker;
+  var DateRangePicker = window.DateRangePicker;
+  var classNames = window.classNames;
+  var asArray = window.asArray;
+  function asArray(v) {
+    return Array.isArray(v) ? v : [];
+  }
+  // [API_BASE managed by runtime]
+  function apiGet(path) {
+    return fetch(API_BASE + path).then(function (r) {
+      if (!r.ok) throw new Error("API error " + r.status);
+      return r.json();
+    });
+  }
+  function apiSend(path, method, body) {
+    return fetch(API_BASE + path, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (!r.ok) throw new Error("API error " + r.status);
+      return r.json();
+    });
+  }
+  function apiDelete(path) {
+    return fetch(API_BASE + path, {
+      method: "DELETE"
+    }).then(function (r) {
+      if (!r.ok) throw new Error("API error " + r.status);
+      return r.json();
+    });
+  }
+  function App() {
+    var [users, setUsers] = useState([]);
+    var [loading, setLoading] = useState(true);
+    var [name, setName] = useState("");
+    var [gender, setGender] = useState("男性");
+    var [age, setAge] = useState("");
+    var [view, setView] = useState("list");
+    var [editId, setEditId] = useState(null);
+    var [stats, setStats] = useState(null);
+    function loadUsers() {
+      return apiGet("/api/users").then(function (data) {
+        setUsers(asArray(data));
+      });
+    }
+    function loadStats() {
+      return apiGet("/api/users/stats").then(function (data) {
+        setStats(data);
+      });
+    }
+    useEffect(function () {
+      setLoading(true);
+      Promise.all([loadUsers(), loadStats()]).then(function () {
+        setLoading(false);
+      }).catch(function () {
+        setLoading(false);
+      });
+    }, []);
+    function refreshAll() {
+      return Promise.all([loadUsers(), loadStats()]);
+    }
+    function handleSubmit() {
+      if (!name.trim() || !age) return;
+      var ageNum = parseInt(age, 10);
+      if (isNaN(ageNum) || ageNum < 0 || ageNum > 150) return;
+      var body = {
+        name: name.trim(),
+        gender: gender,
+        age: ageNum
+      };
+      if (editId !== null) {
+        apiSend("/api/users/" + editId, "PUT", body).then(function () {
+          setEditId(null);
+          setName("");
+          setGender("男性");
+          setAge("");
+          return refreshAll();
+        });
+      } else {
+        apiSend("/api/users", "POST", body).then(function () {
+          setName("");
+          setGender("男性");
+          setAge("");
+          return refreshAll();
+        });
+      }
+    }
+    function handleEdit(u) {
+      setEditId(u.id);
+      setName(u.name);
+      setGender(u.gender);
+      setAge(String(u.age));
+      setView("list");
+    }
+    function handleDelete(id) {
+      apiDelete("/api/users/" + id).then(function () {
+        if (editId === id) {
+          setEditId(null);
+          setName("");
+          setGender("男性");
+          setAge("");
+        }
+        return refreshAll();
+      });
+    }
+    function handleCancel() {
+      setEditId(null);
+      setName("");
+      setGender("男性");
+      setAge("");
+    }
+    var safeUsers = asArray(users);
+    var COLORS = ["#3b82f6", "#ec4899", "#a78bfa"];
+    if (loading) {
+      return /*#__PURE__*/React.createElement("div", {
+        className: "min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center"
+      }, /*#__PURE__*/React.createElement("p", {
+        className: "text-slate-400 text-sm"
+      }, "\u8AAD\u307F\u8FBC\u307F\u4E2D..."));
+    }
+    var safeStats = stats || {
+      total: 0,
+      maleCount: 0,
+      femaleCount: 0,
+      otherCount: 0,
+      avgAge: 0,
+      maxAge: 0,
+      minAge: 0,
+      ageGroups: [],
+      genderData: []
+    };
+    return /*#__PURE__*/React.createElement("div", {
+      className: "min-h-screen bg-gradient-to-br from-slate-50 to-blue-50"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-white border-b border-slate-200 shadow-sm"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "max-w-4xl mx-auto px-4 py-4 flex items-center justify-between"
+    }, /*#__PURE__*/React.createElement("h1", {
+      className: "text-xl font-bold text-slate-800"
+    }, "\uD83D\uDC64 \u30E6\u30FC\u30B6\u30FC\u767B\u9332\u7BA1\u7406"), /*#__PURE__*/React.createElement("div", {
+      className: "flex gap-1 bg-slate-100 rounded-lg p-1"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-1.5 rounded-md text-sm font-medium transition-all " + (view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"),
+      onClick: function () {
+        setView("list");
+      }
+    }, "\uD83D\uDCCB \u4E00\u89A7"), /*#__PURE__*/React.createElement("button", {
+      className: "px-4 py-1.5 rounded-md text-sm font-medium transition-all " + (view === "stats" ? "bg-white text-blue-600 shadow-sm" : "text-slate-500 hover:text-slate-700"),
+      onClick: function () {
+        setView("stats");
+      }
+    }, "\uD83D\uDCCA \u7D71\u8A08")))), /*#__PURE__*/React.createElement("div", {
+      className: "max-w-4xl mx-auto px-4 py-6"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6"
+    }, /*#__PURE__*/React.createElement("h2", {
+      className: "text-sm font-semibold text-slate-700 mb-4"
+    }, editId !== null ? "✏️ ユーザー編集" : "➕ 新規ユーザー登録"), /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 sm:grid-cols-4 gap-3"
+    }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, "\u6C0F\u540D"), /*#__PURE__*/React.createElement("input", {
+      className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent",
+      value: name,
+      onChange: function (e) {
+        setName(e.target.value);
+      },
+      placeholder: "\u5C71\u7530\u592A\u90CE"
+    })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, "\u6027\u5225"), /*#__PURE__*/React.createElement("select", {
+      className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white",
+      value: gender,
+      onChange: function (e) {
+        setGender(e.target.value);
+      }
+    }, /*#__PURE__*/React.createElement("option", {
+      value: "\u7537\u6027"
+    }, "\u7537\u6027"), /*#__PURE__*/React.createElement("option", {
+      value: "\u5973\u6027"
+    }, "\u5973\u6027"), /*#__PURE__*/React.createElement("option", {
+      value: "\u305D\u306E\u4ED6"
+    }, "\u305D\u306E\u4ED6"))), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("label", {
+      className: "block text-xs text-slate-500 mb-1"
+    }, "\u5E74\u9F62"), /*#__PURE__*/React.createElement("input", {
+      className: "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400",
+      type: "number",
+      min: "0",
+      max: "150",
+      value: age,
+      onChange: function (e) {
+        setAge(e.target.value);
+      },
+      placeholder: "25"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "flex items-end gap-2"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-40",
+      onClick: handleSubmit,
+      disabled: !name.trim() || !age
+    }, editId !== null ? "更新" : "登録"), editId !== null && /*#__PURE__*/React.createElement("button", {
+      className: "px-3 py-2 rounded-lg text-sm text-slate-500 hover:bg-slate-100 transition-colors",
+      onClick: handleCancel
+    }, "\u53D6\u6D88")))), view === "list" && /*#__PURE__*/React.createElement("div", null, safeUsers.length === 0 ? /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-4xl mb-3"
+    }, "\uD83D\uDC65"), /*#__PURE__*/React.createElement("p", {
+      className: "text-slate-400 text-sm"
+    }, "\u307E\u3060\u30E6\u30FC\u30B6\u30FC\u304C\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u305B\u3093"), /*#__PURE__*/React.createElement("p", {
+      className: "text-slate-300 text-xs mt-1"
+    }, "\u4E0A\u306E\u30D5\u30A9\u30FC\u30E0\u304B\u3089\u767B\u9332\u3057\u3066\u304F\u3060\u3055\u3044")) : /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "px-5 py-3 border-b border-slate-100 flex items-center justify-between"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-sm font-semibold text-slate-700"
+    }, "\u767B\u9332\u30E6\u30FC\u30B6\u30FC"), /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-slate-400"
+    }, safeUsers.length + "件")), /*#__PURE__*/React.createElement("div", {
+      className: "divide-y divide-slate-100"
+    }, safeUsers.map(function (u) {
+      var genderEmoji = u.gender === "男性" ? "🙋‍♂️" : u.gender === "女性" ? "🙋‍♀️" : "🧑";
+      var genderColor = u.gender === "男性" ? "bg-blue-50 text-blue-700" : u.gender === "女性" ? "bg-pink-50 text-pink-700" : "bg-purple-50 text-purple-700";
+      return /*#__PURE__*/React.createElement("div", {
+        key: u.id,
+        className: "px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-3"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-lg"
+      }, genderEmoji), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+        className: "text-sm font-medium text-slate-800"
+      }, u.name), /*#__PURE__*/React.createElement("div", {
+        className: "text-xs text-slate-400"
+      }, u.age + "歳"))), /*#__PURE__*/React.createElement("div", {
+        className: "flex items-center gap-3"
+      }, /*#__PURE__*/React.createElement("span", {
+        className: "text-xs px-2 py-0.5 rounded-full font-medium " + genderColor
+      }, u.gender), /*#__PURE__*/React.createElement("button", {
+        className: "text-xs text-slate-400 hover:text-blue-600 transition-colors",
+        onClick: function () {
+          handleEdit(u);
+        }
+      }, "\u7DE8\u96C6"), /*#__PURE__*/React.createElement("button", {
+        className: "text-xs text-slate-400 hover:text-red-500 transition-colors",
+        onClick: function () {
+          handleDelete(u.id);
+        }
+      }, "\u524A\u9664")));
+    })))), view === "stats" && /*#__PURE__*/React.createElement("div", null, safeStats.total === 0 ? /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-4xl mb-3"
+    }, "\uD83D\uDCCA"), /*#__PURE__*/React.createElement("p", {
+      className: "text-slate-400 text-sm"
+    }, "\u7D71\u8A08\u3092\u8868\u793A\u3059\u308B\u306B\u306F\u30E6\u30FC\u30B6\u30FC\u3092\u767B\u9332\u3057\u3066\u304F\u3060\u3055\u3044")) : /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-400 mb-1"
+    }, "\u7DCF\u767B\u9332\u6570"), /*#__PURE__*/React.createElement("div", {
+      className: "text-2xl font-bold text-slate-800"
+    }, safeStats.total)), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-400 mb-1"
+    }, "\u5E73\u5747\u5E74\u9F62"), /*#__PURE__*/React.createElement("div", {
+      className: "text-2xl font-bold text-blue-600"
+    }, safeStats.avgAge + "歳")), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-400 mb-1"
+    }, "\u6700\u5E74\u5C11"), /*#__PURE__*/React.createElement("div", {
+      className: "text-2xl font-bold text-emerald-600"
+    }, safeStats.minAge + "歳")), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "text-xs text-slate-400 mb-1"
+    }, "\u6700\u5E74\u9577"), /*#__PURE__*/React.createElement("div", {
+      className: "text-2xl font-bold text-amber-600"
+    }, safeStats.maxAge + "歳"))), /*#__PURE__*/React.createElement("div", {
+      className: "grid grid-cols-1 sm:grid-cols-2 gap-4"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-5"
+    }, /*#__PURE__*/React.createElement("h3", {
+      className: "text-sm font-semibold text-slate-700 mb-4"
+    }, "\u6027\u5225\u5206\u5E03"), /*#__PURE__*/React.createElement(ResponsiveContainer, {
+      width: "100%",
+      height: 220
+    }, /*#__PURE__*/React.createElement(PieChart, null, /*#__PURE__*/React.createElement(Pie, {
+      data: asArray(safeStats.genderData),
+      dataKey: "value",
+      nameKey: "name",
+      cx: "50%",
+      cy: "50%",
+      outerRadius: 80,
+      label: function (entry) {
+        return entry.name + " " + entry.value + "人";
+      }
+    }, asArray(safeStats.genderData).map(function (entry, i) {
+      return /*#__PURE__*/React.createElement(Cell, {
+        key: i,
+        fill: COLORS[i % COLORS.length]
+      });
+    })), /*#__PURE__*/React.createElement(Tooltip, null))), /*#__PURE__*/React.createElement("div", {
+      className: "flex justify-center gap-4 mt-2"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-slate-500"
+    }, "\uD83D\uDE4B\u200D\u2642\uFE0F \u7537\u6027 ", safeStats.maleCount + "人"), /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-slate-500"
+    }, "\uD83D\uDE4B\u200D\u2640\uFE0F \u5973\u6027 ", safeStats.femaleCount + "人"), safeStats.otherCount > 0 && /*#__PURE__*/React.createElement("span", {
+      className: "text-xs text-slate-500"
+    }, "\uD83E\uDDD1 \u305D\u306E\u4ED6 ", safeStats.otherCount + "人"))), /*#__PURE__*/React.createElement("div", {
+      className: "bg-white rounded-xl shadow-sm border border-slate-200 p-5"
+    }, /*#__PURE__*/React.createElement("h3", {
+      className: "text-sm font-semibold text-slate-700 mb-4"
+    }, "\u5E74\u9F62\u5206\u5E03"), /*#__PURE__*/React.createElement(ResponsiveContainer, {
+      width: "100%",
+      height: 220
+    }, /*#__PURE__*/React.createElement(BarChart, {
+      data: asArray(safeStats.ageGroups),
+      margin: {
+        top: 5,
+        right: 10,
+        left: -10,
+        bottom: 5
+      }
+    }, /*#__PURE__*/React.createElement(CartesianGrid, {
+      strokeDasharray: "3 3",
+      stroke: "#f1f5f9"
+    }), /*#__PURE__*/React.createElement(XAxis, {
+      dataKey: "name",
+      tick: {
+        fontSize: 11
+      }
+    }), /*#__PURE__*/React.createElement(YAxis, {
+      allowDecimals: false,
+      tick: {
+        fontSize: 11
+      }
+    }), /*#__PURE__*/React.createElement(Tooltip, null), /*#__PURE__*/React.createElement(Bar, {
+      dataKey: "count",
+      name: "\u4EBA\u6570",
+      fill: "#3b82f6",
+      radius: [4, 4, 0, 0]
+    })))))))));
+  }
+  return App;
+}
+  var App = __renderApp(API_BASE);
+  ReactDOM.createRoot(document.getElementById('root'))
+    .render(React.createElement(App));
+} catch(e) {
+  reportError('RenderError', e.message, e.stack || '');
+}
+</script>
+</body>
+</html>

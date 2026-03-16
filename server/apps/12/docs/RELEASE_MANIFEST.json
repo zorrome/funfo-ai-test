@@ -1,0 +1,150 @@
+{
+  "appId": 12,
+  "appName": "test2",
+  "releaseAppId": 12,
+  "sourceAppId": 12,
+  "releaseVersion": 3,
+  "previewSlug": "nq6xi71j",
+  "generatedAt": "2026-03-14T18:48:30.223Z",
+  "artifacts": {
+    "frontend": {
+      "file": "App.jsx",
+      "sha256": "d847628c57a5b6f920edad2bf987fc2d87ec8a73f5d61444a9250d43ab38bd88",
+      "bytes": 13708
+    },
+    "backend": {
+      "file": "server.js",
+      "sha256": "dea6115d61891889e53ab13bafb576b65894b84f72b0a016e6222bf3ce684262",
+      "bytes": 3967
+    },
+    "schema": {
+      "file": "schema.sql",
+      "sha256": "8fc7da7d8e57483d4646b6437e49b0dc2b9e8b7524b05bdf5675f3e058761bb5",
+      "bytes": 281
+    }
+  },
+  "runtime": {
+    "containerName": "funfo-app-12",
+    "ip": "172.18.0.4",
+    "labels": {
+      "com.docker.compose.project": "funfo_ai_store",
+      "com.docker.compose.service": "funfo-ai-store",
+      "com.docker.compose.version": "5.0.2",
+      "funfo.app_id": "12",
+      "funfo.slug": "nq6xi71j"
+    },
+    "running": true
+  },
+  "verification": {
+    "ok": true,
+    "summary": "release verifier passed",
+    "primaryFailure": null,
+    "blockingFailures": [],
+    "typedBlockingFailures": [],
+    "checks": [
+      {
+        "id": "frontend_artifact",
+        "ok": true,
+        "detail": "frontend code and App.jsx present"
+      },
+      {
+        "id": "backend_artifact",
+        "ok": true,
+        "detail": "backend code and server.js present"
+      },
+      {
+        "id": "schema_artifact",
+        "ok": true,
+        "detail": "schema code and schema.sql present"
+      },
+      {
+        "id": "version_artifacts_persisted",
+        "ok": true,
+        "detail": "version dir v3 frontend=true backend=true schema=true"
+      },
+      {
+        "id": "artifact_consistency",
+        "ok": true,
+        "detail": "root artifacts match versioned artifacts"
+      },
+      {
+        "id": "frontend_api_binding",
+        "ok": true,
+        "detail": "frontend is API-driven"
+      },
+      {
+        "id": "frontend_local_first_signals",
+        "ok": true,
+        "detail": "no local storage or obvious mock-data source-of-truth signals found"
+      },
+      {
+        "id": "frontend_contracts_detected",
+        "ok": true,
+        "detail": "6 frontend API contract(s) extracted"
+      },
+      {
+        "id": "contract_alignment",
+        "ok": true,
+        "detail": "all 6 referenced frontend routes exist in backend"
+      },
+      {
+        "id": "route_ordering",
+        "ok": true,
+        "detail": "no route ordering issues detected"
+      },
+      {
+        "id": "schema_runtime_compat",
+        "ok": true,
+        "detail": "server-side table/column expectations are present in schema.sql"
+      },
+      {
+        "id": "runtime_present",
+        "ok": true,
+        "detail": "container funfo-app-12"
+      },
+      {
+        "id": "runtime_ready",
+        "ok": true,
+        "detail": "health endpoint responded"
+      },
+      {
+        "id": "runtime_health_payload",
+        "ok": true,
+        "detail": "health payload ok=true"
+      },
+      {
+        "id": "runtime_db_mode",
+        "ok": true,
+        "detail": "dbMode=prod"
+      },
+      {
+        "id": "smokeable_contracts",
+        "ok": true,
+        "detail": "2 stable GET route(s) available for probes"
+      },
+      {
+        "id": "behavior_smoke_get",
+        "ok": true,
+        "detail": "GET /api/users responded 200"
+      },
+      {
+        "id": "behavior_smoke_login",
+        "ok": true,
+        "detail": "no auth routes detected; login smoke skipped"
+      },
+      {
+        "id": "behavior_smoke_session",
+        "ok": true,
+        "detail": "no auth routes detected; session smoke skipped"
+      },
+      {
+        "id": "behavior_smoke_logout",
+        "ok": true,
+        "detail": "no auth routes detected; logout smoke skipped"
+      }
+    ]
+  },
+  "backendReuse": {
+    "rollbackBackupVersion": 2
+  }
+}

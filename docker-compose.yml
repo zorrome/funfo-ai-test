@@ -1,0 +1,23 @@
+services:
+  funfo-ai-store:
+    build: .
+    container_name: funfo-ai-store
+    env_file:
+      - .env
+    ports:
+      - "3100:3100"
+      - "5175:5175"
+    volumes:
+      - ./server:/app/server
+      - ${HOST_PROJECT_ROOT}:${HOST_PROJECT_ROOT}
+      - ${DOCKER_SOCK_PATH}:${DOCKER_SOCK_PATH}
+    environment:
+      - HOST_PROJECT_ROOT=${HOST_PROJECT_ROOT}
+      - DOCKER_HOST=unix://${DOCKER_SOCK_PATH}
+      - APP_IDLE_MINUTES=${APP_IDLE_MINUTES}
+      - APP_IDLE_CHECK_MS=${APP_IDLE_CHECK_MS}
+      - OPENCLAW_URL=${OPENCLAW_URL}
+      - OPENCLAW_TOKEN=${OPENCLAW_TOKEN}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

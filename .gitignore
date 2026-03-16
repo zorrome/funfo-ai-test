@@ -1,0 +1,24 @@
+# Node / Vite
+node_modules/
+dist/
+.vite/
+
+# Environment
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+server/logs/
+
+# Databases & runtime data
+server/funfo.db
+server/apps/*/data.sqlite
+server/apps/*/log/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
