@@ -344,6 +344,59 @@ try {
     if (!platformStateCols.find(c => c.name === 'updated_at')) db.exec("ALTER TABLE platform_ai_state ADD COLUMN updated_at TEXT NOT NULL DEFAULT (datetime('now'))");
   }
   db.prepare("INSERT OR IGNORE INTO platform_ai_state (id, default_model_key) VALUES (1, NULL)").run();
+
+  // Bootstrap default AI provider from environment variables (for local setups).
+  // This never reads secrets from code; everything comes from process.env and DB stays out of git.
+  try {
+    const providerCount = db.prepare("SELECT COUNT(*) AS c FROM platform_ai_providers").get()?.c || 0;
+    const bootstrapProviderId = process.env.FUNFO_DEFAULT_PROVIDER_ID;
+    const bootstrapLabel = process.env.FUNFO_DEFAULT_PROVIDER_LABEL;
+    const bootstrapAuthType = process.env.FUNFO_DEFAULT_PROVIDER_AUTH_TYPE || 'oauth';
+    const bootstrapCredentials = process.env.FUNFO_DEFAULT_PROVIDER_CREDENTIALS_JSON;
+    const bootstrapModels = process.env.FUNFO_DEFAULT_PROVIDER_MODELS_JSON;
+    const bootstrapDefaultModel = process.env.FUNFO_DEFAULT_PROVIDER_DEFAULT_MODEL_ID;
+
+    if (!providerCount && bootstrapProviderId && bootstrapLabel && bootstrapCredentials && bootstrapModels && bootstrapDefaultModel) {
+      db.prepare(`
+        INSERT OR REPLACE INTO platform_ai_providers (
+          provider_id,
+          label,
+          auth_type,
+          connection_status,
+          credentials_json,
+          enabled_models_json,
+          default_model_id,
+          enabled,
+          last_error,
+          metadata_json
+        ) VALUES (
+          @provider_id,
+          @label,
+          @auth_type,
+          'connected',
+          @credentials_json,
+          @enabled_models_json,
+          @default_model_id,
+          1,
+          NULL,
+          @metadata_json
+        )
+      `).run({
+        provider_id: bootstrapProviderId,
+        label: bootstrapLabel,
+        auth_type: bootstrapAuthType,
+        credentials_json: bootstrapCredentials,
+        enabled_models_json: bootstrapModels,
+        default_model_id: bootstrapDefaultModel,
+        metadata_json: process.env.FUNFO_DEFAULT_PROVIDER_METADATA_JSON || null,
+      });
+
+      db.prepare("UPDATE platform_ai_state SET default_model_key = @key, updated_at = datetime('now') WHERE id = 1")
+        .run({ key: `${bootstrapProviderId}:${bootstrapDefaultModel}` });
+    }
+  } catch (e) {
+    console.warn('platform_ai_providers bootstrap warning:', e.message);
+  }
 } catch (e) {
   console.warn('apps migration warning:', e.message);
 }

@@ -37,6 +37,17 @@
        - 可以保留 `OPENCLAW_URL` 默认值；
        - `OPENCLAW_TOKEN` 保持占位字符串，不要提交到 git。
 
+   - 默认 AI Provider（可选，但推荐本机配置好）  
+     - 平台会在启动时根据以下环境变量，自动向 `platform_ai_providers` 写入一条默认 Provider 记录（仅当表为空时）：
+       - `FUNFO_DEFAULT_PROVIDER_ID`：如 `openai-codex`
+       - `FUNFO_DEFAULT_PROVIDER_LABEL`：如 `Codex OAuth`
+       - `FUNFO_DEFAULT_PROVIDER_AUTH_TYPE`：如 `oauth` 或 `api_key`
+       - `FUNFO_DEFAULT_PROVIDER_CREDENTIALS_JSON`：一整个 JSON 字符串，包含 access / refresh token 或 API key 等（只放在 `.env`）
+       - `FUNFO_DEFAULT_PROVIDER_MODELS_JSON`：JSON 数组字符串，例如 `["gpt-5.4","gpt-5.3-codex"]`
+       - `FUNFO_DEFAULT_PROVIDER_DEFAULT_MODEL_ID`：默认模型 ID，例如 `gpt-5.4`
+       - `FUNFO_DEFAULT_PROVIDER_METADATA_JSON`：可选元数据 JSON 字符串
+     - 只要这些变量配置完整、且数据库里还没有任何 Provider，平台启动时就会自动插入一条 Provider，并把 `default_model_key` 设为 `<provider_id>:<default_model_id>`，前端“模型”下拉就会有可选项。
+
 > `.env` 文件已在 `.gitignore` 中默认忽略，只在本地生效，不会被提交到仓库。
 
 ### 3. 安装依赖
